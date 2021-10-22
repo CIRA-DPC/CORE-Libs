@@ -1,0 +1,47 @@
+ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
+FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp/docker:master as build
+
+# Install required packages
+RUN apt-get update && \
+    apt-get -y install build-essential m4 && \
+    rm -rf /var/cache/apt/archives
+
+# Compiler info
+ARG CC=icc
+ENV CC=icc
+ARG CXX=icpc
+ENV CXX=icpc
+ARG F77=ifort
+ENV F77=ifort
+ARG FCC=ifort
+ENV FCC=ifort
+
+# Installation prefix
+ARG PREFIX=/app/build
+ENV PREFIX=/app/build
+ARG TMPDIR=/app/tmp
+ENV TMPDIR=/app/tmp
+
+# Compiler and linker flags
+ARG CFLAGS="-I${PREFIX}/include"
+ARG CXXFLAGS="-I${PREFIX}/include"
+ARG FFLAGS="-I${PREFIX}/include"
+ARG LDFLAGS="-L/app/build/lib"
+ENV LDFLAGS="-L/app/build/lib"
+
+ARG PATH=${PREFIX}/bin:${PATH}
+ENV PATH=${PREFIX}/bin:${PATH}
+
+WORKDIR /app
+COPY build_package.sh .
+COPY Makefile .
+COPY ./src ./src
+
+# Split these up for caching purposes
+RUN make base
+RUN make all
+
+# Copy only what is needed
+ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
+FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp/docker:master
+COPY --from=build /app/build /usr/local
