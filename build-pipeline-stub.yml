@@ -1,0 +1,98 @@
+image: ${EXT_REGISTRY}docker.io/library/docker:19.03
+
+services:
+  - name: ${EXT_REGISTRY}docker.io/library/docker:19.03-dind
+    alias: docker
+
+stages:
+  - build
+  - push
+
+# Used in before_script to get around a bug.
+.docker-login: |
+    echo "===================================="
+    echo "In Docker Login script"
+    echo "CI_REGISTRY: ${CI_REGISTRY}"
+    echo "EXT_REGISTRY: ${EXT_REGISTRY}"
+    echo "===================================="
+
+    echo $CI_REGISTRY
+    echo "$CI_JOB_TOKEN" | docker login -u gitlab-ci-token --password-stdin "$CI_REGISTRY"
+    if [[ ! -z ${EXT_REGISTRY} ]]; then
+        echo "$EXT_USERNAME:$EXT_TOKEN"
+        echo "$EXT_TOKEN" | docker login -u "$EXT_USERNAME" --password-stdin $EXT_REGISTRY
+    fi
+
+# This looks weird, but it allows me to use a script rather than individual lines which allows flow control logic. This
+# is needed due to a bug in GitLab-CI that doens't allow multi-line strings in before_script or after_script.
+before_script:
+  - !reference [.docker-login]
+
+# Used to build a docker image from a dockerfile. To use this, the calling job must set the DOCKERFILE and OUTPUT_IMAGE
+# variables.
+.Build-Docker-Image:
+  stage: build
+  script: |
+    echo "===================="
+    echo "Build Docker Image Configuration"
+    echo "    DOCKERFILE: $DOCKERFILE"
+    echo "    OUTPUT_IMAGE: $OUTPUT_IMAGE"
+    echo "    CI_PIPELINE_ID: $CI_PIPELINE_ID"
+    echo "===================="
+    docker pull $OUTPUT_IMAGE/docker:latest || :
+    docker build --file ${DOCKERFILE} \
+                 --build-arg EXT_REGISTRY="${EXT_REGISTRY}" \
+                 --cache-from $OUTPUT_IMAGE/docker:latest \
+                 --tag $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID \
+                 .
+    docker push $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID
+
+# Used to push a docker image to gitlab and harvor. To use this, the calling job must set the DOCKERFILE and OUTPUT_IMAGE
+# variables.
+.Push-Docker-Image:
+  rules:
+    - when: on_success
+  stage: push
+  script: |
+    echo "============================================"
+    echo "Job Info:"
+    echo "    Image where CI will run: ${CI_IMAGE}"
+    echo "    Path to Dockerfile: ${DOCKERFILE}"
+    echo "    Temporary image to pull: ${OUTPUT_IMAGE}/tmp-docker:$CI_PIPELINE_ID"
+    echo "    Images to create and push:"
+    echo "        Branch image: $OUTPUT_IMAGE/docker:$CI_COMMIT_REF_NAME"
+    echo "        Latest image: $OUTPUT_IMAGE/docker:latest"
+    if [[ ! -z ${CI_COMMIT_TAG+x} ]]; then
+        echo "            Stable image: $CI_PIPELINE_IMAGE/docker:stable"
+    fi
+    echo "============================================"
+
+    # Because we have no guarantee that this job will be picked up by the same runner 
+    # that built the image in the previous step, we pull it again locally
+    docker pull $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID
+
+    # GitLab Registry: Tag with version and "latest" and push 
+    docker tag $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID $OUTPUT_IMAGE/docker:$CI_COMMIT_REF_NAME
+    docker tag $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID $OUTPUT_IMAGE/docker:latest
+    docker push $OUTPUT_IMAGE/docker:$CI_COMMIT_REF_NAME
+    docker push $OUTPUT_IMAGE/docker:latest
+
+    # External Registry: If an external registry is defined, push to it
+    if [[ ! -z ${EXT_REGISTRY+x} ]]; then
+        EXT_OUTPUT_IMAGE=${OUTPUT_IMAGE/$CI_REGISTRY\//$EXT_REGISTRY}
+        docker tag $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID $EXT_OUTPUT_IMAGE/docker:$CI_COMMIT_REF_NAME
+        docker tag $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID $EXT_OUTPUT_IMAGE/docker:latest
+        docker push $EXT_OUTPUT_IMAGE/docker:$CI_COMMIT_REF_NAME
+        docker push $EXT_OUTPUT_IMAGE/docker:latest
+    fi
+
+    # If this push also pushes a tag then add a stable tag
+    if [[ ! -z ${CI_COMMIT_TAG+x} ]]; then
+        echo "Adding stable image for tag ${CI_COMMIT_TAG}"
+        docker tag $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID $OUTPUT_IMAGE/docker:stable
+        docker push $OUTPUT_IMAGE/docker:stable
+        if [[ ! -z ${EXT_OUTPUT_IMAGE+x} ]]; then
+            docker tag $OUTPUT_IMAGE/tmp-docker:$CI_PIPELINE_ID $EXT_OUTPUT_IMAGE/docker:stable
+            docker push $EXT_OUTPUT_IMAGE/docker:stable
+        fi
+    fi
