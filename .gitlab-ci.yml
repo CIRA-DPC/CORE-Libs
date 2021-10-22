@@ -1,0 +1,25 @@
+stages:
+  - generate
+  - trigger
+  - test
+
+Generate-Build-Pipeline:
+  stage: generate
+  script:
+    - ./generate-build-pipeline.sh > generated-build-pipeline.yml
+  artifacts:
+    paths:
+      - generated-build-pipeline.yml
+
+Trigger-Build-Pipeline:
+  stage: trigger
+  trigger:
+    include:
+      - artifact: generated-build-pipeline.yml
+        job: Generate-Build-Pipeline
+    strategy: depend
+
+Test-Extra-Job:
+  stage: test
+  script: |
+    echo "I'm running!"
