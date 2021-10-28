@@ -1,0 +1,76 @@
+ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
+FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-centos-8/docker:latest as build
+
+ARG WORKDIR=/app/core_libs
+ENV WORKDIR=/app/core_libs
+WORKDIR ${WORKDIR}
+
+# Install required packages
+RUN yum update -y && \
+    yum install -y m4 libtirpc libtirpc-devel && \
+    yum clean all
+
+# Compiler info
+ARG CC=icc
+ENV CC=icc
+ARG CXX=icpc
+ENV CXX=icpc
+ARG F77=ifort
+ENV F77=ifort
+ARG FCC=ifort
+ENV FCC=ifort
+
+# Installation prefix
+ARG PREFIX=${WORKDIR}/build
+ENV PREFIX=${WORKDIR}/build
+ARG TEMPDIR=${WORKDIR}/tmp
+ENV TEMPDIR=${WORKDIR}/tmp
+
+# Compiler and linker flags
+ARG CFLAGS="-I${PREFIX}/include/tirpc"
+ENV CFLAGS="${CFLAGS}"
+ARG CPPFLAGS="-I${PREFIX}/include/tirpc"
+ENV CPPFLAGS="${CPPFLAGS}"
+ARG FFLAGS="-I${PREFIX}/include/tirpc"
+ENV FFLAGS="${FFLAGS}"
+ARG BUILD_LIBTIRPC="true"
+ARG BUILD_LIBTIRPC=${BUILD_LIBTIRPC}
+# ARG LDFLAGS="-L/app/build/lib"
+# ENV LDFLAGS="${LDFLAGS}"
+
+ARG PATH=${PREFIX}/bin:${PATH}
+ENV PATH=${PREFIX}/bin:${PATH}
+
+COPY build_package.sh .
+COPY Makefile .
+COPY ./src ./src
+
+# Split these up for caching purposes
+# RUN make libtirpc.a
+RUN make base
+RUN make all
+
+# # Package the libraries and output a tar.gz file
+# RUN tar -czvf core_libs-linux-centos-8-x86_64.tgz ${PREFIX}/bin ${PREFIX}/lib ${PREFIX}/include
+
+# Export build
+# Scratch is an explicitly empty image
+# Copy in what we want to keep
+# Build with `docker build . --target export -o <outputFname>
+FROM scratch as export
+
+ARG WORKDIR=/app/core_libs
+ENV WORKDIR=/app/core_libs
+WORKDIR ${WORKDIR}
+
+COPY --from=build ${WORKDIR}/build /usr/local
+
+# Copy only what is needed
+ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
+FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-centos-8/docker:latest
+
+ARG WORKDIR=/app/core_libs
+ENV WORKDIR=/app/core_libs
+WORKDIR ${WORKDIR}
+
+COPY --from=build ${WORKDIR}/build /usr/local

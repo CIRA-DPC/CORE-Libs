@@ -12,30 +12,32 @@ if [ -z ${PREFIX} ]; then
 fi
 
 SRCFILE=$(realpath $1)
-TMPDIR=${PWD}/tmp
+TEMPDIR=${PWD}/tmp
 
-if [ -d "${TMPDIR}" ]; then
-    rmdir ${TMPDIR}
+if [ -d "${TEMPDIR}" ]; then
+    rmdir ${TEMPDIR}
 fi
-mkdir -p ${TMPDIR}
+mkdir -p ${TEMPDIR}
 
 set +e
 source /opt/intel/oneapi/setvars.sh
 sv_ret=$?
 set -e
-if [[ "${sv_ret}" != "0" ]]; then
+if [[ "${sv_ret}" == "3" ]]; then
+    echo "Intel environment already set"
+elif [[ "${sv_ret}" != "0" ]]; then
     echo "Error encountered in /opt/intel/oneapi/setvars.sh"
     exit ${sv_ret}
 fi
 
 echo $?
 
-cd ${TMPDIR}
-tar -xzvf "${SRCFILE}" --directory "${TMPDIR}" --strip-components=1
+cd ${TEMPDIR}
+tar -xzvf "${SRCFILE}" --directory "${TEMPDIR}" --strip-components=1
 
 ./configure --prefix=$(realpath ${PREFIX}) ${CONFIGFLAGS}
 make
 make install
 
 cd ..
-rm -rf ${TMPDIR}
+rm -rf ${TEMPDIR}
