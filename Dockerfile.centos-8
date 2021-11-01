@@ -2,7 +2,7 @@ ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
 FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-centos-8/docker:latest as build
 
 ARG WORKDIR=/app/core_libs
-ENV WORKDIR=/app/core_libs
+ENV WORKDIR=${WORKDIR}
 WORKDIR ${WORKDIR}
 
 # Install required packages
@@ -12,65 +12,58 @@ RUN yum update -y && \
 
 # Compiler info
 ARG CC=icc
-ENV CC=icc
+ENV CC=${CC}
 ARG CXX=icpc
-ENV CXX=icpc
+ENV CXX=${CXX}
 ARG F77=ifort
-ENV F77=ifort
+ENV F77=${F77}
 ARG FCC=ifort
-ENV FCC=ifort
+ENV FCC=${FCC}
 
 # Installation prefix
 ARG PREFIX=${WORKDIR}/build
-ENV PREFIX=${WORKDIR}/build
+ENV PREFIX=${PREFIX}
 ARG TEMPDIR=${WORKDIR}/tmp
-ENV TEMPDIR=${WORKDIR}/tmp
+ENV TEMPDIR=${TEMPDIR}
 
 # Compiler and linker flags
-ARG CFLAGS="-I${PREFIX}/include/tirpc"
-ENV CFLAGS="${CFLAGS}"
-ARG CPPFLAGS="-I${PREFIX}/include/tirpc"
-ENV CPPFLAGS="${CPPFLAGS}"
-ARG FFLAGS="-I${PREFIX}/include/tirpc"
-ENV FFLAGS="${FFLAGS}"
-ARG BUILD_LIBTIRPC="true"
-ARG BUILD_LIBTIRPC=${BUILD_LIBTIRPC}
-# ARG LDFLAGS="-L/app/build/lib"
-# ENV LDFLAGS="${LDFLAGS}"
+ARG CFLAGS=-I${PREFIX}/include/tirpc
+ENV CFLAGS=${CFLAGS}
+ARG CPPFLAGS=-I${PREFIX}/include/tirpc
+ENV CPPFLAGS=${CPPFLAGS}
+ARG FFLAGS=-I${PREFIX}/include/tirpc
+ENV FFLAGS=${FFLAGS}
+ARG BUILD_LIBTIRPC=true
+ENV BUILD_LIBTIRPC=${BUILD_LIBTIRPC}
 
 ARG PATH=${PREFIX}/bin:${PATH}
-ENV PATH=${PREFIX}/bin:${PATH}
+ENV PATH=${PATH}
 
 COPY build_package.sh .
+COPY create_package_fname.sh .
 COPY Makefile .
 COPY ./src ./src
 
 # Split these up for caching purposes
-# RUN make libtirpc.a
 RUN make base
 RUN make all
-
-# # Package the libraries and output a tar.gz file
-# RUN tar -czvf core_libs-linux-centos-8-x86_64.tgz ${PREFIX}/bin ${PREFIX}/lib ${PREFIX}/include
+RUN make package
 
 # Export build
 # Scratch is an explicitly empty image
 # Copy in what we want to keep
-# Build with `docker build . --target export -o <outputFname>
+# Build with `docker build . --target export -o . -f Dockerfile.centos-8`
+# This will result in a `.tar.gz` file containing the static libraries being written to CWD on the host
 FROM scratch as export
-
 ARG WORKDIR=/app/core_libs
-ENV WORKDIR=/app/core_libs
-WORKDIR ${WORKDIR}
-
-COPY --from=build ${WORKDIR}/build /usr/local
+COPY --from=build ${WORKDIR}/packages/*.tar.gz /
 
 # Copy only what is needed
 ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
 FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-centos-8/docker:latest
 
 ARG WORKDIR=/app/core_libs
-ENV WORKDIR=/app/core_libs
+ENV WORKDIR=${WORKDIR}
 WORKDIR ${WORKDIR}
 
 COPY --from=build ${WORKDIR}/build /usr/local

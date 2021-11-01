@@ -1,6 +1,10 @@
 ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
 FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:latest as build
 
+ARG WORKDIR=/app/core_libs
+ENV WORKDIR=${WORKDIR}
+WORKDIR ${WORKDIR}
+
 # Install required packages
 RUN apt-get update && \
     apt-get -y install m4 && \
@@ -8,43 +12,48 @@ RUN apt-get update && \
 
 # Compiler info
 ARG CC=icc
-ENV CC=icc
+ENV CC=${CC}
 ARG CXX=icpc
-ENV CXX=icpc
+ENV CXX=${CXX}
 ARG F77=ifort
-ENV F77=ifort
+ENV F77=${F77}
 ARG FCC=ifort
-ENV FCC=ifort
+ENV FCC=${FCC}
 
 # Installation prefix
-ARG PREFIX=/app/build
-ENV PREFIX=/app/build
-ARG TEMPDIR=/app/tmp
-ENV TEMPDIR=/app/tmp
-
-# Compiler and linker flags
-# ARG CFLAGS="-I${PREFIX}/include -I/usr/local/include -I/usr/include"
-# ENV CFLAGS="${CPATH}"
-# ARG CXXFLAGS="-I${PREFIX}/include -I/usr/local/include -I/usr/include"
-# ENV CXXFLAGS="${CXXFLAGS}"
-# ARG FFLAGS="-I${PREFIX}/include -I/usr/local/include -I/usr/include"
-# ENV FFLAGS="${FFLAGS}"
-# ARG LDFLAGS="-L/app/build/lib"
-# ENV LDFLAGS="${LDFLAGS}"
+ARG PREFIX=${WORKDIR}/build
+ENV PREFIX=${PREFIX}
+ARG TEMPDIR=${WORKDIR}/tmp
+ENV TEMPDIR=${TEMPDIR}
 
 ARG PATH=${PREFIX}/bin:${PATH}
 ENV PATH=${PATH}
 
-WORKDIR /app
 COPY build_package.sh .
+COPY create_package_fname.sh .
 COPY Makefile .
 COPY ./src ./src
 
 # Split these up for caching purposes
 RUN make base
 RUN make all
+RUN make package
+
+# Export build
+# Scratch is an explicitly empty image
+# Copy in what we want to keep
+# Build with `docker build . --target export -o . -f Dockerfile.debian-10`
+# This will result in a `.tar.gz` file containing the static libraries being written to CWD on the host
+FROM scratch as export
+ARG WORKDIR=/app/core_libs
+COPY --from=build ${WORKDIR}/packages/*.tar.gz /
 
 # Copy only what is needed
 ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
 FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:latest
-COPY --from=build /app/build /usr/local
+
+ARG WORKDIR=/app/core_libs
+ENV WORKDIR=${WORKDIR}
+WORKDIR ${WORKDIR}
+
+COPY --from=build ${WORKDIR}/build /usr/local
