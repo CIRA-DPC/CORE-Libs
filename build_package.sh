@@ -39,5 +39,14 @@ tar -xzvf "${SRCFILE}" --directory "${TEMPDIR}" --strip-components=1
 make
 make install
 
+# This was intended for use when only building the parts of these packages that are needed
+# make ${SPECIAL_TARGET}
+# if [[ -z $SPECIAL_TARGET ]]; then
+#     make install
+# else
+#     mkdir -p ./build/$(dirname ${SPECIAL_TARGET})
+#     cp ${SPECIAL_TARGET} ./build/${SPECIAL_TARGET}
+# fi
+
 cd ..
 rm -rf ${TEMPDIR}
