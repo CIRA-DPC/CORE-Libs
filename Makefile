@@ -1,10 +1,14 @@
+.DEFAULT_GOAL = all
+
 # path macros
+basedir := $(abspath .)
 srcdir := src
 prefix := $(abspath build)
 exec_prefix := $(prefix)
 bindir := $(exec_prefix)/bin
 libdir := $(exec_prefix)/lib
 includedir := $(prefix)/include
+packdir := $(basedir)/packages
 
 # tool macros
 CC := icc
@@ -18,21 +22,28 @@ CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
 LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
 
 BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
-ALL_LIBS := $(BASE_LIBS) libhdf.a libhdfeos.a
+ALL_LIBS := $(BASE_LIBS) libmfhdf.a libhdfeos.a
+
+PACK_FNAME := $(packdir)/$(shell ./create_package_fname.sh core_libs)
 
 ifeq ($(BUILD_LIBTIRPC),true)
     EXTRA_LIBS := libtirpc.a
     LIBS := ${LIBS} -ltirpc
 endif
 
-vpath %.tar.gz $(srcdir)
-vpath %.a $(libdir)
+VPATH := $(srcdir) $(libdir)
 
 # clean files list
 CLEAN_LIST := $(TARGET)
 
-# default rule
-default: makedir all
+.PHONY: debug
+debug:
+	echo $(libdir)
+
+.PHONY: package
+package: all
+	mkdir -p $(packdir)
+	( cd $(prefix); tar -czf $(PACK_FNAME) lib/*.a include )
 
 .PHONY: all
 all: $(ALL_LIBS)
@@ -40,7 +51,7 @@ all: $(ALL_LIBS)
 .PHONY: base
 base: $(BASE_LIBS)
 
-libhdfeos.a: hdf-eos2-3.0-src.tar.gz base libhdf.a
+libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 	LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" PREFIX="$(prefix)" \
 		   CONFIGFLAGS="--with-szlib=$(prefix) --enable-fortran" \
 		   CC="$(prefix)/bin/h4cc" CFLAGS="$(CFLAGS)" \
@@ -48,7 +59,7 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz base libhdf.a
 		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" \
 		   ./build_package.sh $<
 	
-libhdf.a: hdf-4.2.15.tar.gz base
+libmfhdf.a: hdf-4.2.15.tar.gz | base
 	PREFIX="$(prefix)" CONFIGFLAGS="--with-szlib="$(prefix)" --disable-netcdf" \
 		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
 		   F77="$(FCC)" FFLAGS="$(FFLAGS)" \
@@ -70,9 +81,6 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" \
 		   ./build_package.sh $<
 
-test:
-	touch test
-
 %.a:
 	PREFIX="$(prefix)" \
 		   CC="$(CC)" $CFLAGS="$(CFLAGS)" \
@@ -86,10 +94,13 @@ test:
 makedir:
 	@mkdir -p $(prefix)
 
-.PHONY: all
-all: $(TARGET)
-
 .PHONY: clean
 clean:
 	@rm -rf tmp
-	@rm -rf $(prefix)
+	@rm $(bindir)/*
+	@rmdir $(bindir)
+	@rm $(libdir)/*
+	@rmdir $(libdir)
+	@rm $(includedir)/*
+	@rmdir $(includedir)
+	@rmdir $(prefix)
