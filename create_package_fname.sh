@@ -11,4 +11,7 @@ elif [ "${OS}" = "darwin" ]; then
     DIST='apple'
     MACH=`uname -m`
 fi
-echo ${PACKAGE}-${DIST}-${OS}-${MACH}.tar.gz
+
+TAG=`git describe --tags`
+
+echo ${PACKAGE}-${TAG}-${DIST}-${OS}-${MACH}.tar.gz
