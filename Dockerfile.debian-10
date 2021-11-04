@@ -1,5 +1,5 @@
 ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
-FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:latest as build
+FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:2.0.0 as build
 
 ARG WORKDIR=/app/core_libs
 ENV WORKDIR=${WORKDIR}
@@ -29,10 +29,11 @@ ENV TEMPDIR=${TEMPDIR}
 ARG PATH=${PREFIX}/bin:${PATH}
 ENV PATH=${PATH}
 
-COPY build_package.sh .
-COPY create_package_fname.sh .
-COPY Makefile .
-COPY ./src ./src
+COPY . .
+# COPY build_package.sh .
+# COPY create_package_fname.sh .
+# COPY Makefile .
+# COPY ./src ./src
 
 # Split these up for caching purposes
 RUN make base
@@ -50,7 +51,7 @@ COPY --from=build ${WORKDIR}/packages/*.tar.gz /
 
 # Copy only what is needed
 ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
-FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:latest
+FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:2.0.0
 
 ARG WORKDIR=/app/core_libs
 ENV WORKDIR=${WORKDIR}
