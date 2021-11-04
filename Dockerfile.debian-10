@@ -41,7 +41,7 @@ COPY ./src ./src
 # Split these up for caching purposes
 RUN make base
 RUN make all
-RUN make package
+RUN if [[ -z PACK_VER ]]; then make package; fi
 
 # Export build
 # Scratch is an explicitly empty image

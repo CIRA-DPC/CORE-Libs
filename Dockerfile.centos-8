@@ -44,14 +44,15 @@ ARG PACK_VER
 
 # COPY . .
 COPY build_package.sh .
-COPY create_package_fname.sh .
 COPY Makefile .
 COPY ./src ./src
 
 # Split these up for caching purposes
 RUN make base
 RUN make all
-RUN make package
+
+COPY create_package_fname.sh .
+RUN if [[ -z PACK_VER ]]; then make package; fi
 
 # Export build
 # Scratch is an explicitly empty image
