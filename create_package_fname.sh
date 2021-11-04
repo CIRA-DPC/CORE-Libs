@@ -3,7 +3,7 @@
 # Creates a package filename for the given package name and version
 
 PACKAGE=$1
-VERSION=$2
+PACKAGE_VERSION=$2
 
 OS=`uname -s | tr '[:upper:]' '[:lower:]'`
 if [ "${OS}" = "linux" ]; then
@@ -15,4 +15,4 @@ elif [ "${OS}" = "darwin" ]; then
     MACH=`uname -m`
 fi
 
-echo ${PACKAGE}-${VERSION}-${DIST}-${OS}-${MACH}.tar.gz
+echo ${PACKAGE}-${PACKAGE_VERSION}-${DIST}-${OS}-${MACH}.tar.gz

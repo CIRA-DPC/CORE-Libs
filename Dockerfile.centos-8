@@ -39,10 +39,6 @@ ENV BUILD_LIBTIRPC=${BUILD_LIBTIRPC}
 ARG PATH=${PREFIX}/bin:${PATH}
 ENV PATH=${PATH}
 
-# Package version number for packaging
-ARG PACK_VER
-
-# COPY . .
 COPY build_package.sh .
 COPY Makefile .
 COPY ./src ./src
@@ -51,8 +47,10 @@ COPY ./src ./src
 RUN make base
 RUN make all
 
+# Package version number for packaging
+ARG PACK_VER
 COPY create_package_fname.sh .
-RUN if [[ -z PACK_VER ]]; then make package; fi
+RUN make package PACK_VER="${PACK_VER}"
 
 # Export build
 # Scratch is an explicitly empty image
