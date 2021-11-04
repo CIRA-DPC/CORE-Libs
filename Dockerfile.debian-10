@@ -29,9 +29,6 @@ ENV TEMPDIR=${TEMPDIR}
 ARG PATH=${PREFIX}/bin:${PATH}
 ENV PATH=${PATH}
 
-# Package version number for packaging
-ARG PACK_VER
-
 COPY build_package.sh .
 COPY Makefile .
 COPY ./src ./src
@@ -40,6 +37,8 @@ COPY ./src ./src
 RUN make base
 RUN make all
 
+# Package version number for packaging
+ARG PACK_VER
 COPY create_package_fname.sh .
 RUN make package PACK_VER=${PACK_VER}
 
