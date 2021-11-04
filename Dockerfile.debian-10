@@ -29,11 +29,14 @@ ENV TEMPDIR=${TEMPDIR}
 ARG PATH=${PREFIX}/bin:${PATH}
 ENV PATH=${PATH}
 
-COPY . .
-# COPY build_package.sh .
-# COPY create_package_fname.sh .
-# COPY Makefile .
-# COPY ./src ./src
+# Package version number for packaging
+ARG PACK_VER
+
+# COPY . .
+COPY build_package.sh .
+COPY create_package_fname.sh .
+COPY Makefile .
+COPY ./src ./src
 
 # Split these up for caching purposes
 RUN make base

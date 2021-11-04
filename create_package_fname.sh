@@ -1,6 +1,9 @@
 #!/bin/sh
 
+# Creates a package filename for the given package name and version
+
 PACKAGE=$1
+VERSION=$2
 
 OS=`uname -s | tr '[:upper:]' '[:lower:]'`
 if [ "${OS}" = "linux" ]; then
@@ -12,6 +15,4 @@ elif [ "${OS}" = "darwin" ]; then
     MACH=`uname -m`
 fi
 
-VER=`git describe --tags`
-
-echo ${PACKAGE}-${VER}-${DIST}-${OS}-${MACH}.tar.gz
+echo ${PACKAGE}-${VERSION}-${DIST}-${OS}-${MACH}.tar.gz

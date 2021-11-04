@@ -24,7 +24,9 @@ LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
 BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
 ALL_LIBS := $(BASE_LIBS) libmfhdf.a libhdfeos.a
 
-PACK_FNAME := $(packdir)/$(shell ./create_package_fname.sh core_libs)
+PACK_NAME := core_libs
+PACK_VER := $(shell git describe --tags)
+PACK_FNAME := $(packdir)/$(shell ./create_package_fname.sh ${PACK_NAME} ${PACK_VER})
 
 ifeq ($(BUILD_LIBTIRPC),true)
     EXTRA_LIBS := libtirpc.a
