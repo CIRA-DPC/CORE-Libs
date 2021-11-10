@@ -5,11 +5,6 @@ ARG WORKDIR=/app/core_libs
 ENV WORKDIR=${WORKDIR}
 WORKDIR ${WORKDIR}
 
-# Install required packages
-RUN yum update -y && \
-    yum install -y m4 libtirpc libtirpc-devel && \
-    yum clean all
-
 # Compiler info
 ARG CC=icc
 ENV CC=${CC}
@@ -27,12 +22,6 @@ ARG TEMPDIR=${WORKDIR}/tmp
 ENV TEMPDIR=${TEMPDIR}
 
 # Compiler and linker flags
-ARG CFLAGS=-I${PREFIX}/include/tirpc
-ENV CFLAGS=${CFLAGS}
-ARG CPPFLAGS=-I${PREFIX}/include/tirpc
-ENV CPPFLAGS=${CPPFLAGS}
-ARG FFLAGS=-I${PREFIX}/include/tirpc
-ENV FFLAGS=${FFLAGS}
 ARG BUILD_LIBTIRPC=true
 ENV BUILD_LIBTIRPC=${BUILD_LIBTIRPC}
 

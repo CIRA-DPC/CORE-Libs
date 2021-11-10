@@ -20,6 +20,12 @@ ENV F77=${F77}
 ARG FCC=ifort
 ENV FCC=${FCC}
 
+# Compiler and linker flags
+# Maybe this could just be based on OS in the makefile
+# If linux, build. If Mac, don't.
+ARG BUILD_LIBTIRPC=true
+ENV BUILD_LIBTIRPC=${BUILD_LIBTIRPC}
+
 # Installation prefix
 ARG PREFIX=${WORKDIR}/build
 ENV PREFIX=${PREFIX}
