@@ -24,11 +24,11 @@ this repository and call `make` from the repository's top-level directory.
 A script (`create_packages.sh`) is provided to produce tar files containing the built libraries for 
 various operating systems. The output tar files will contain only static libraries for each package 
 and their associated `include` files.  Currently this script must be run from a Mac and produces 
-binaries for Mac, CentOS-8, and Debian-10.
+binaries for "darwin" and "linux". The Mac libraries have been tested on Catalina and Big Sur using 
+both x86_64 and arm64 (M1 chips) architectures.
 
-To produce a tar file for only one specific Linux operating system, build that operating system's 
-Docker image, but specify the `--target export` flag to stop building at the `export` stage of the 
-multi-stage built.
+To produce a tar file for only for linux, build the `debian-10` docker image specify the `--target 
+export` flag to stop building at the `export` stage of the multi-stage built.
 
 To produce a tar file only for Mac, simply run `make package` from this package's top-level 
 directory.
