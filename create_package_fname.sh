@@ -15,4 +15,4 @@ elif [ "${OS}" = "darwin" ]; then
     MACH=`uname -m`
 fi
 
-echo ${PACKAGE}-${PACKAGE_VERSION}-${DIST}-${OS}-${MACH}.tar.gz
+echo ${PACKAGE}-${PACKAGE_VERSION}-${OS}-${MACH}.tar.gz

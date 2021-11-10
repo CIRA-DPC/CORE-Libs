@@ -8,8 +8,9 @@ source or binary forms. It is automatically downloaded and used in the build pro
 library.
 
 ## Supported OS and Architectures
-This package has been tested on Mac OSX Catalina and Big Sur, CentOS 8, and Debian 10. Only the x86 
-architecture has been tested.
+This package has been tested on Mac OSX Catalina and Big Sur, CentOS 8, and Debian 10. For Linux 
+only the x86 architecture has been tested. For Mac both x86 and the new M1 Arm64 architectures have 
+been tested.
 
 ## Building the Libraries
 
@@ -38,10 +39,8 @@ Prebuilt libraries can be found on [CIRA's NextCloud webpage][nextcloud-core-lib
 files. Each file contains only static libraries and their associated `include` files (e.g. `.h` and 
 `.mod` files).
 
-To use the prebuilt libraries to build CORE itself, download the file for your OS, untar it, and add 
-the following to your call to `make` when building core: `FFLAGS=-I<core_libs_path>/include 
-LDFLAGS=-L<core_libs_path>/lib` where `<core_libs_path>` is the path to the location where the 
-package was untarred.
+To use the prebuilt libraries to build CORE itself, simply run `make` for CORE. It will 
+automatically detect your OS and download the appropriate prebuilt version of `core_libs`.
 
 ## Package Contents
 
@@ -54,11 +53,11 @@ In the Make process, the following packages will be built and installed in `PREF
 HDF-EOS2 are built.
 
 - libcirpc v1.3.1 | [home][hm-libtirpc] | [source code download][dl-libtirpc]
-  - This is installed only for CentOS 8 (and, presumably, other similar Linux flavors). This is 
-    required because `rpc` has been removed from glibc as of version 2.32 which is used starting in 
-    Fedora 28, CentOS 8, Alma 8, Red Hat 8, etc. [See here for more 
-    information][info-glibc-rpc-depr].
-  - When required, this must be built before the other five "base" libraries.
+  - This is required for CentOS 8 and other similar linux flavors. This is required because `rpc` 
+    has been removed from glibc as of version 2.32 which is used starting in Fedora 28, CentOS 8, 
+    Alma 8, Red Hat 8, etc. [See here for more information][info-glibc-rpc-depr].
+  - To support a single set of libraries for all Linux flavors, `libtirpc` is always built and the 
+    system-level version of `rpc` or `libtirpc` is ignored.
 - bison v3.8 | [home][hm-bison] | [source code download][dl-bison]
   - Must be built before `flex`.
 - zlib v1.2.11 | [home][hm-zlib] | [source code download][dl-zlib]
