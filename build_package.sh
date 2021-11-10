@@ -14,10 +14,6 @@ if [ -z ${ONEAPI_PATH} ]; then
     ONEAPI_PATH=/opt/intel/oneapi
 fi
 
-if [[ -z INTEL_PATH ]]; then
-    INTEL_PATH=/opt/intel
-fi
-
 SRCFILE=$(realpath $1)
 TEMPDIR=${PWD}/tmp
 
@@ -27,7 +23,7 @@ fi
 mkdir -p ${TEMPDIR}
 
 set +e
-source ${INTEL_PATH}/oneapi/setvars.sh
+source ${ONEAPI_PATH}/setvars.sh
 sv_ret=$?
 set -e
 if [[ "${sv_ret}" == "3" ]]; then
