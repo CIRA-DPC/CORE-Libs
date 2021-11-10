@@ -10,6 +10,9 @@ realpath() {
 if [ -z ${PREFIX} ]; then
     echo "Environment variable 'PREFIX' must be set"
 fi
+if [ -z ${ONEAPI_PATH} ]; then
+    ONEAPI_PATH=/opt/intel/oneapi
+fi
 
 SRCFILE=$(realpath $1)
 TEMPDIR=${PWD}/tmp

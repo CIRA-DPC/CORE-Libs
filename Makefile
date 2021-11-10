@@ -79,7 +79,7 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 		   CONFIGFLAGS="--with-szlib=$(prefix) --enable-fortran" \
 		   CC="$(prefix)/bin/h4cc" CFLAGS="$(CFLAGS)" \
 		   FC="$(prefix)/bin/h4fc" F77="$(prefix)/bin/h4fc" FFLAGS="$(FFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" \
+		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
 	
 libmfhdf.a: hdf-4.2.15.tar.gz | base
@@ -88,7 +88,7 @@ libmfhdf.a: hdf-4.2.15.tar.gz | base
 		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
 		   F77="$(FCC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" \
+		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
 
 libfl.a: flex-2.6.4.tar.gz liby.a
@@ -103,7 +103,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
 		   F77="$(FCC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" \
+		   LDFLAGS="$(LDFLAGS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
 
 %.a:
@@ -112,7 +112,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 		   CC="$(CC)" $CFLAGS="$(CFLAGS)" \
 		   FCC="$(FCC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" \
+		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
 
 # phony rules
