@@ -11,6 +11,10 @@ if [ -z ${PREFIX} ]; then
     echo "Environment variable 'PREFIX' must be set"
 fi
 
+if [[ -z INTEL_PATH ]]; then
+    INTEL_PATH=/opt/intel
+fi
+
 SRCFILE=$(realpath $1)
 TEMPDIR=${PWD}/tmp
 
@@ -20,7 +24,7 @@ fi
 mkdir -p ${TEMPDIR}
 
 set +e
-source /opt/intel/oneapi/setvars.sh
+source ${INTEL_PATH}/oneapi/setvars.sh
 sv_ret=$?
 set -e
 if [[ "${sv_ret}" == "3" ]]; then
