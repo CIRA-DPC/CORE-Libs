@@ -16,11 +16,11 @@ FCC := ifort
 CXX := icpc
 
 # complier and linker flags
-CFLAGS := -I$(includedir) $(CFLAGS) -I/usr/local/include -I/usr/include
-FFLAGS := -I$(includedir) $(FFLAGS) -I/usr/local/include -I/usr/include
-CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
-LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
-LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
+override CFLAGS := -I$(includedir) $(CFLAGS) -I/usr/local/include -I/usr/include
+override FFLAGS := -I$(includedir) $(FFLAGS) -I/usr/local/include -I/usr/include
+override CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
+override LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
+override LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
 # CFLAGS := -I$(includedir) $(CFLAGS)
 # FFLAGS := -I$(includedir) $(FFLAGS)
 # CXXFLAGS := -I$(includedir) $(CXXFLAGS)
