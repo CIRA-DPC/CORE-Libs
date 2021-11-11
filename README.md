@@ -69,8 +69,9 @@ Their naming structure is `pname-pver-opsys-arch.tar.gz` where:
 - `arch` is the chip architecture (`x86_64` for Intel and `arm64` for M1)
 
 ### Distributing a Release
+- Get an account on [https://io.cira.colostate.edu]() that is in the `CloudSat Developer` group.
 - login to [https://io.cira.colostate.edu]()
-- Then navigate to the `CORE Libaries` directory ([link][https://io.cira.colostate.edu/f/3447897]
+- Then navigate to the `CORE Libaries` directory ([link](https://io.cira.colostate.edu/f/3447897))
 - Upload the files either by dragging and dropping them or by clicking the `+` symbol at the top of 
   the page and selecting "Upload File"
 
