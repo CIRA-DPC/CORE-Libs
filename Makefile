@@ -11,9 +11,21 @@ includedir := $(exec_prefix)/include
 packdir := $(basedir)/packages
 
 # tool macros
-CC := icc
 FCC := ifort
 CXX := icpc
+
+UNAME_S := $(shell uname -s)
+CLI_TOOLS=/Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
+ifeq ($(UNAME_S), Darwin)
+    ifeq ($(wildcard $(CLI_TOOLS)),)
+        $(error Command Line Tools not found: Install using `xcode-select --install`)
+    else
+        CC := icc -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+    endif
+else
+    CC := icc
+endif
+
 
 # complier and linker flags
 override CFLAGS := -I$(includedir) $(CFLAGS) -I/usr/local/include -I/usr/include
