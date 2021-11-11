@@ -16,6 +16,7 @@ CXX := icpc
 UNAME_S := $(shell uname -s)
 CLI_TOOLS=/Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
 ifeq ($(UNAME_S), Darwin)
+    BUILD_LIBTIRPC := false
     ifeq ($(wildcard $(CLI_TOOLS)),)
         $(error Command Line Tools not found: Install using `xcode-select --install`)
     else
@@ -24,6 +25,7 @@ ifeq ($(UNAME_S), Darwin)
         CXX := icpc -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
     endif
 else
+    BUILD_LIBTIRPC := true
     CC := icc
     FCC := ifort
     CXX := icpc
