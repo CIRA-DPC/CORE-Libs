@@ -15,10 +15,18 @@ been tested.
 ## Building the Libraries
 
 ### Building from Source
+**There are currently issues with this relating to use of environment variables**
+See this issue: https://bear.cira.colostate.edu/CloudSat-DPC/system/core_libs/-/issues/3
+
 Building form source requires the Intel OneAPI compilers for `ifort` and `icc`. Instructions on how 
 to install these compilers can be found on the [Intel OneAPI page of the DPC wiki][wiki-oneapi].  To 
-build the package source the Intel environment (`.  /opt/intel/oneapi/setvars.sh`) then simply clone 
-this repository and call `make` from the repository's top-level directory.
+build the package:
+- source the Intel environment (`.  /opt/intel/oneapi/setvars.sh`)
+- (Debian) ensure that `m4` is installed: `apt-get install m4`
+- clone this repository: `git clone git@bear.cira.colostate.edu:CloudSat-DPC/system/core_libs.git`  
+- change directories to the cloned repository: `cd core_libs`
+- To build the libraries for local use: `make`
+- To package them for distribution: `make package`
 
 ### Building for Multiple Operating Systems
 A script (`create_packages.sh`) is provided to produce tar files containing the built libraries for 
@@ -32,6 +40,39 @@ export` flag to stop building at the `export` stage of the multi-stage built.
 
 To produce a tar file only for Mac, simply run `make package` from this package's top-level 
 directory.
+
+## Distribution
+
+### Creating a Release
+Before creating a new binary release, please create a new tag in the repository via `git tag` or the 
+GitLab UI.  The tag should be a semantic version number (e.g. 2.1.3) and should be an increment 
+higher than the previous tag.
+
+To produce the files for distribution, we need to build for both the Intel and M1 chip 
+architectures. To do this, please do the following on both an Intel Mac and an M1 Mac:
+
+```
+git clone git@bear.cira.colostate.edu:CloudSat-DPC/system/core_libs.git
+cd core_libs
+./create_packages.sh
+```
+
+This will result in two `.tar.gz` files, one for "darwin" and one for "linux", in `./packages`.  
+Their naming structure is `pname-pver-opsys-arch.tar.gz` where:
+- `pname` is the package name (`core_libs`)
+- `pver` is the package version which is set to the most recent tag in the package
+  - If the most recent tag is on the current commit, only the tag will be used
+  - If there have been commits since the most recent tag, additional information will be added to 
+    the version to indicate how many additional commits there have been. These are not intended for 
+    distribution.
+- `opsys` is the operating system (either "darwin" or "linux")
+- `arch` is the chip architecture (`x86_64` for Intel and `arm64` for M1)
+
+### Distributing a Release
+- login to [https://io.cira.colostate.edu]()
+- Then navigate to the `CORE Libaries` directory ([link][https://io.cira.colostate.edu/f/3447897]
+- Upload the files either by dragging and dropping them or by clicking the `+` symbol at the top of 
+  the page and selecting "Upload File"
 
 ## Downloading and Using Prebuilt Binaries
 
