@@ -28,19 +28,6 @@ build the package:
 - To build the libraries for local use: `make`
 - To package them for distribution: `make package`
 
-### Building for Multiple Operating Systems
-A script (`create_packages.sh`) is provided to produce tar files containing the built libraries for 
-various operating systems. The output tar files will contain only static libraries for each package 
-and their associated `include` files.  Currently this script must be run from a Mac and produces 
-binaries for "darwin" and "linux". The Mac libraries have been tested on Catalina and Big Sur using 
-both x86_64 and arm64 (M1 chips) architectures.
-
-To produce a tar file for only for linux, build the `debian-10` docker image specify the `--target 
-export` flag to stop building at the `export` stage of the multi-stage built.
-
-To produce a tar file only for Mac, simply run `make package` from this package's top-level 
-directory.
-
 ## Distribution
 
 ### Creating a Release
@@ -81,8 +68,9 @@ Prebuilt libraries can be found on [CIRA's NextCloud webpage][nextcloud-core-lib
 files. Each file contains only static libraries and their associated `include` files (e.g. `.h` and 
 `.mod` files).
 
-To use the prebuilt libraries to build CORE itself, simply run `make` for CORE. It will 
-automatically detect your OS and download the appropriate prebuilt version of `core_libs`.
+To use the prebuilt libraries to build [CORE](https://github.com/CIRA-DPC/CORE) itself, update the 
+`CORE_LIBS_VERSION` variable in CORE's `Makefile`, then run `make` for CORE.  It will automatically 
+detect your OS and download the appropriate prebuilt version of `core_libs`.
 
 ## Package Contents
 
@@ -121,29 +109,35 @@ Packages" must be built (handled in `Makefile`).
 Dependencies are built from source using ifort and dpcpp from OneAPI.
 
 ## Notes
-### Handling slow compile on Mac
 
-The Intel compilers seem to run slowly on Mac due to an issue with xcodebuild being called multiple 
-times per execution of the Intel compiler. A "fix" to this issue is provided below and comes from 
-the last comment in [this thread][slow-intel-fix].
+### "Fix" Poor Performance on Mac
 
-Set three environment variables (probably in your .bashrc).
-```
-export INTEL_OSXSDK_VER=`xcodebuild -sdk macosx -version | grep SDKVersion`
-export INTEL_OSXSDK_PATH=`xcodebuild -sdk macosx -version Path`
-export PATH=${HOME}/bin:${PATH}
-```
+On Macs that have XCode installed, the Intel compilers run very slowly. This is not true for Macs 
+that only have Command Line Tools installed.
 
-Create a file called `${HOME}/bin/xcodebuild` that contains the following:
-```
-#!/bin/bash
-case "$4" in
-    "")
-      echo $INTEL_OSXSDK_VER;;
-     *)
-      echo $INTEL_OSXSDK_PATH;;
-esac
-```
+The issue is caused by xcodebuild being called multiple times per execution of the Intel compiler.  
+A "fix" to this issue is provided below and comes from the last comment in [this 
+thread][slow-intel-fix].
+
+1. Create a file called `${HOME}/bin/xcodebuild` that contains the following:
+   ```
+   #!/bin/bash
+   case "$4" in
+       "")
+         echo $INTEL_OSXSDK_VER;;
+        *)
+         echo $INTEL_OSXSDK_PATH;;
+   esac
+   ```
+
+2. Set three environment variables (probably in your .bashrc).
+   ```
+   export INTEL_OSXSDK_VER=`xcodebuild -sdk macosx -version | grep SDKVersion`
+   export INTEL_OSXSDK_PATH=`xcodebuild -sdk macosx -version Path`
+   export PATH=${HOME}/bin:${PATH}
+   ```
+
+3. Restart your shell session.
 
 ### Developing on Mac: Disable Automatic Locale Detection
 
@@ -162,18 +156,6 @@ but I'm not sure if it would have downstream impacts.
 
 A potential solution that "should" work, but has not worked for me can be found here:
 https://satyanash.net/software/2020/05/29/locale-issues-ssh-into-a-vm.html
-
-gctp.lib - Comes from https://github.com/tdanckaert/GCTP
-hd421m.lib - HDF4
-hdf.lib - HDF4
-hdfeos.lib - HDF-EOS2
-hm421m.lib - HDF4
-libjpeg.lib - JPEG
-mfhdf.lib - HDF4
-szlib.lib - SZlib
-xdr.lib - ???
-zlib.lib - Zlib1g
-
 
 <!-- Links -->
 [hm-libtirpc]: https://git.linux-nfs.org/?p=steved/libtirpc.git
