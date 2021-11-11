@@ -5,25 +5,11 @@ ARG WORKDIR=/app/core_libs
 ENV WORKDIR=${WORKDIR}
 WORKDIR ${WORKDIR}
 
-# Compiler info
-ARG CC=icc
-ENV CC=${CC}
-ARG CXX=icpc
-ENV CXX=${CXX}
-ARG F77=ifort
-ENV F77=${F77}
-ARG FCC=ifort
-ENV FCC=${FCC}
-
 # Installation prefix
 ARG PREFIX=${WORKDIR}/build
 ENV PREFIX=${PREFIX}
 ARG TEMPDIR=${WORKDIR}/tmp
 ENV TEMPDIR=${TEMPDIR}
-
-# Compiler and linker flags
-ARG BUILD_LIBTIRPC=true
-ENV BUILD_LIBTIRPC=${BUILD_LIBTIRPC}
 
 ARG PATH=${PREFIX}/bin:${PATH}
 ENV PATH=${PATH}
