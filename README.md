@@ -21,7 +21,9 @@ See this issue: https://bear.cira.colostate.edu/CloudSat-DPC/system/core_libs/-/
 Building form source requires the Intel OneAPI compilers for `ifort` and `icc`. Instructions on how 
 to install these compilers can be found on the [Intel OneAPI page of the DPC wiki][wiki-oneapi].  To 
 build the package:
-- source the Intel environment (`.  /opt/intel/oneapi/setvars.sh`)
+- source the Intel environment:
+  - For root installations: `. /opt/intel/oneapi/setvars.sh`
+  - For user-specific installations: `. /opt/intel/oneapi/setvars.sh`
 - (Debian) ensure that `m4` is installed: `apt-get install m4`
 - clone this repository: `git clone git@bear.cira.colostate.edu:CloudSat-DPC/system/core_libs.git`  
 - change directories to the cloned repository: `cd core_libs`
