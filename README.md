@@ -16,7 +16,7 @@ been tested.
 
 ### Building from Source
 **There are currently issues with this relating to use of environment variables**
-See this issue: https://bear.cira.colostate.edu/CloudSat-DPC/system/core_libs/-/issues/3
+See this issue: https://bear.cira.colostate.edu/CloudSat-DPC/cloudsat/algorithms/core_libs/-/issues/3
 
 Building form source requires the Intel OneAPI compilers for `ifort` and `icc`. Instructions on how 
 to install these compilers can be found on the [Intel OneAPI page of the DPC wiki][wiki-oneapi].  To 
@@ -25,8 +25,8 @@ build the package:
   - For root installations: `. /opt/intel/oneapi/setvars.sh`
   - For user-specific installations: `. /opt/intel/oneapi/setvars.sh`
 - (Debian) ensure that `m4` is installed: `apt-get install m4`
-- clone this repository: `git clone git@bear.cira.colostate.edu:CloudSat-DPC/system/core_libs.git`  
-- change directories to the cloned repository: `cd core_libs`
+- clone this repository: `git clone git@bear.cira.colostate.edu:CloudSat-DPC/cloudsat/algorithms/core_libs.git`  - change directories 
+  to the cloned repository: `cd core_libs`
 - To build the libraries for local use: `make`
 - To package them for distribution: `make package`
 
@@ -41,7 +41,7 @@ To produce the files for distribution, we need to build for both the Intel and M
 architectures. To do this, please do the following on both an Intel Mac and an M1 Mac:
 
 ```
-git clone git@bear.cira.colostate.edu:CloudSat-DPC/system/core_libs.git
+git clone git@bear.cira.colostate.edu:CloudSat-DPC/cloudsat/algorithms/core_libs.git
 cd core_libs
 ./create_packages.sh
 ```

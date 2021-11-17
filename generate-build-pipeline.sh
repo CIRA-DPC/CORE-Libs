@@ -4,7 +4,7 @@ cat ./build-pipeline-stub.yml
 
 # This is just used for testing purposes since CI_REGISTRY_IMAGE is always set in gitlab-ci
 if [ -z "${CI_REGISTRY_IMAGE}" ]; then
-    CI_REGISTRY_IMAGE=bear.cira.colostate.edu:4567/cloudsat-dpc/system/core_libs
+    CI_REGISTRY_IMAGE=bear.cira.colostate.edu:4567/cloudsat-dpc/cloudsat/algorithms/core_libs
 fi
 
 dockerfiles=$(ls Dockerfile*)
