@@ -3,17 +3,21 @@
 set -e
 set -x
 
+echo "In build_package.sh"
+
 realpath() {
     [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
 
 if [ -z ${PREFIX} ]; then
     echo "Environment variable 'PREFIX' must be set"
+    exit 1
 fi
 
 SRCFILE=$(realpath $1)
 TEMPDIR=${PWD}/tmp
 
+echo "Before TEMPDIR"
 if [ -d "${TEMPDIR}" ]; then
     rm -rf ${TEMPDIR}
 fi
@@ -37,6 +41,7 @@ mkdir -p ${TEMPDIR}
 
 echo $?
 
+echo "Before tar"
 cd ${TEMPDIR}
 tar -xzvf "${SRCFILE}" --directory "${TEMPDIR}" --strip-components=1
 
@@ -59,6 +64,7 @@ echo -e "LDFLAGS:\t${LDFLAGS}"
 echo -e "ONEAPI_PATH:\t${ONEAPI_PATH}"
 echo "**********************************************************"
 
+echo "Before configure"
 ./configure --prefix=$(realpath ${PREFIX}) ${CONFIGFLAGS}
 make
 make install
