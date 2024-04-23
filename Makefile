@@ -66,6 +66,7 @@ ifeq ($(BUILD_LIBTIRPC),true)
     CFLAGS += -I$(includedir)/tirpc
     CXXFLAGS += -I$(includedir)/tirpc
     FFLAGS += -I$(includedir)/tirpc
+    LINK_LIBS += -ltirpc
 endif
 
 VPATH := $(srcdir) $(libdir)
