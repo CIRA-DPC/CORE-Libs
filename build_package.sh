@@ -42,6 +42,7 @@ echo "**********************************************************"
 echo LIBS: ${LIBS}
 echo PATH: ${PATH}
 echo LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}
+echo CPPFLAGS: ${CPPFLAGS}
 echo "**********************************************************"
 
 ./configure --prefix=$(realpath ${PREFIX}) ${CONFIGFLAGS}
