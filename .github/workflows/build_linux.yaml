@@ -33,4 +33,4 @@ jobs:
 
     - name: Build package
       run: |
-        make V=1 all
+        make all
