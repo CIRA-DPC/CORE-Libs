@@ -11,24 +11,36 @@ includedir := $(exec_prefix)/include
 packdir := $(basedir)/packages
 
 # tool macros
-CXX := icpc
+CC ?= icc
+FC ?= ifort
+CXX ?= icpc
 
 UNAME_S := $(shell uname -s)
 CLI_TOOLS=/Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
+BUILD_LIBTIRPC := true
+CFLAGS :=
+FFLAGS := -std=legacy
+CXXFLAGS :=
 ifeq ($(UNAME_S), Darwin)
     BUILD_LIBTIRPC := false
     ifeq ($(wildcard $(CLI_TOOLS)),)
         $(error Command Line Tools not found: Install using `xcode-select --install`)
-    else
-        CC := icc -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-        FCC := ifort -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-        CXX := icpc -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-    endif
-else
-    BUILD_LIBTIRPC := true
-    CC := icc
-    FCC := ifort
-    CXX := icpc
+	endif
+	ifeq ($(CC), icc)
+        CFLAGS := -isysroot $(CLI_TOOLS)
+	else
+		CFLAGS := --sysroot $(CLI_TOOLS)
+	endif
+	ifeq ($(FC), ifort)
+        FFLAGS := -isysroot $(CLI_TOOLS)
+	else
+		FFLAGS := --sysroot $(CLI_TOOLS)
+	endif
+	ifeq ($(CXX), icpc)
+        CXXFLAGS := -isysroot $(CLI_TOOLS)
+	else
+		CXXFLAGS := --sysroot $(CLI_TOOLS)
+	endif
 endif
 
 
@@ -38,13 +50,11 @@ override FFLAGS := -I$(includedir) $(FFLAGS) -I/usr/local/include -I/usr/include
 override CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
 override LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
 override LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
-# CFLAGS := -I$(includedir) $(CFLAGS)
-# FFLAGS := -I$(includedir) $(FFLAGS)
-# CXXFLAGS := -I$(includedir) $(CXXFLAGS)
-# LDFLAGS := -L$(libdir) $(LDFLAGS)
+override PATH := $(bindir):$(PATH)
 
 BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
 ALL_LIBS := $(BASE_LIBS) libmfhdf.a libhdfeos.a
+LINK_LIBS := $(patsubt lib%.a,-l%,$(BASE_LIBS))
 
 PACK_NAME := core_libs
 PACK_VER := $(shell git describe --tags)
@@ -57,7 +67,6 @@ ifeq ($(BUILD_LIBTIRPC),true)
     CXXFLAGS += -I$(includedir)/tirpc
     FFLAGS += -I$(includedir)/tirpc
 endif
-# LIBS := ${LIBS} -ltirpc
 
 VPATH := $(srcdir) $(libdir)
 
@@ -66,19 +75,23 @@ CLEAN_LIST := $(TARGET)
 
 .PHONY: debug
 debug:
-	echo "basedir $(basedir)"
-	echo "srcdir $(srcdir)"
-	echo "prefix $(prefix)"
-	echo "exec_prefix $(exec_prefix)"
-	echo "bindir $(bindir)"
-	echo "libdir $(libdir)"
-	echo "includedir $(includedir)"
-	echo "packdir $(packdir)"
-	echo "CFLAGS $(CFLAGS)"
-	echo "CXXFLAGS $(CXXFLAGS)"
-	echo "FFLAGS $(FFLAGS)"
-	echo "LDFLAGS $(LDFLAGS)"
-	echo "LD_LIBRARY_PATH $(LD_LIBRARY_PATH)"
+	@echo "CC $(CC)"
+	@echo "FC $(FC)"
+	@echo "CXX $(CXX)"
+	@echo "basedir $(basedir)"
+	@echo "srcdir $(srcdir)"
+	@echo "prefix $(prefix)"
+	@echo "exec_prefix $(exec_prefix)"
+	@echo "bindir $(bindir)"
+	@echo "libdir $(libdir)"
+	@echo "includedir $(includedir)"
+	@echo "packdir $(packdir)"
+	@echo "CFLAGS $(CFLAGS)"
+	@echo "CXXFLAGS $(CXXFLAGS)"
+	@echo "FFLAGS $(FFLAGS)"
+	@echo "LDFLAGS $(LDFLAGS)"
+	@echo "LD_LIBRARY_PATH $(LD_LIBRARY_PATH)"
+	@echo "LINK_LIBS $(LINK_LIBS)"
 
 .PHONY: package
 package: all
@@ -92,20 +105,21 @@ all: $(ALL_LIBS)
 base: $(BASE_LIBS)
 
 libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
-	LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" PREFIX="$(prefix)" \
+	PATH="$(PATH)" LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" PREFIX="$(prefix)" \
 		   CONFIGFLAGS="--with-szlib=$(prefix) --enable-fortran" \
 		   CC="$(prefix)/bin/h4cc" CFLAGS="$(CFLAGS)" \
 		   FC="$(prefix)/bin/h4fc" F77="$(prefix)/bin/h4fc" FFLAGS="$(FFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
+		   LDFLAGS="$(LDFLAGS)" LIBS="$(LINK_LIBS) $(libdir)/libmfhdf.a" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
 	
 libmfhdf.a: hdf-4.2.15.tar.gz | base
-	PREFIX="$(prefix)" CONFIGFLAGS="--with-szlib="$(prefix)" --disable-netcdf" \
+	PATH="$(PATH)" PREFIX="$(prefix)" \
+	       CONFIGFLAGS="--with-szlib="$(prefix)" --with-jpeg="$(prefix)" --with-zlib="$(prefix)" --disable-netcdf" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
-		   F77="$(FCC)" FFLAGS="$(FFLAGS)" \
+		   F77="$(FC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
+		   LDFLAGS="$(LDFLAGS)" LIBS="$(LINK_LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
 
 libfl.a: flex-2.6.4.tar.gz liby.a
@@ -118,7 +132,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	PREFIX="$(prefix)" CONFIGFLAGS="--disable-gssapi" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
-		   F77="$(FCC)" FFLAGS="$(FFLAGS)" \
+		   F77="$(FC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
 		   LDFLAGS="$(LDFLAGS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
@@ -127,7 +141,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	PREFIX="$(prefix)" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" $CFLAGS="$(CFLAGS)" \
-		   FCC="$(FCC)" FFLAGS="$(FFLAGS)" \
+		   FC="$(FC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
 		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
