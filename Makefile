@@ -152,7 +152,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	F77="$(FC)" \
 	CXX="$(CXX)" \
 	CONFIGFLAGS="--disable-gssapi" \
-	CPPFLAGS="$(CPPFLAGS)"
+	CPPFLAGS="$(CPPFLAGS)" \
 	CFLAGS="$(CFLAGS)" \
 	FFLAGS="$(FFLAGS)" \
 	CXXFLAGS="$(CXXFLAGS)" \
