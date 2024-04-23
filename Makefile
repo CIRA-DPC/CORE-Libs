@@ -31,7 +31,7 @@ ifeq ($(UNAME_S), Darwin)
     ifeq ($(wildcard $(CLI_TOOLS)),)
         $(error Command Line Tools not found: Install using `xcode-select --install`)
 	endif
-	ifeq ($(COMPLER_SET), gnu)
+	ifeq ($(COMPILER_SET), gnu)
 		COMMON_FLAGS += --sysroot $(CLI_TOOLS)
 	else ifeq ($(COMPILER_SET), intel)
         COMMON_FLAGS += -isysroot $(CLI_TOOLS)
@@ -106,7 +106,7 @@ base: $(BASE_LIBS)
 libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 	PATH="$(PATH)" \
 	PREFIX="$(prefix)" \
-	COMPLIER_SET="$(COMPLER_SET)" \
+	COMPLIER_SET="$(COMPILER_SET)" \
 	CC="$(prefix)/bin/h4cc" \
 	FC="$(prefix)/bin/h4fc" \
 	F77="$(prefix)/bin/h4fc" \
@@ -123,7 +123,7 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 libmfhdf.a: hdf-4.2.15.tar.gz | base
 	PATH="$(PATH)" \
 	PREFIX="$(prefix)" \
-	COMPLIER_SET="$(COMPLER_SET)" \
+	COMPLIER_SET="$(COMPILER_SET)" \
 	CC="$(CC)" \
 	CXX="$(CXX)" \
 	F77="$(FC)" \
@@ -147,7 +147,7 @@ libz.a: zlib-1.2.11.tar.gz $(EXTRA_LIBS)
 libtirpc.a: libtirpc-1.3.1.tar.gz
 	@echo "Building libtirpc"
 	PREFIX="$(prefix)" \
-	COMPILER_SET="$(COMPLER_SET)" \
+	COMPILER_SET="$(COMPILER_SET)" \
 	CC="$(CC)" \
 	F77="$(FC)" \
 	CXX="$(CXX)" \
@@ -164,7 +164,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 %.a:
 	@echo "Building $<"
 	PREFIX="$(prefix)" \
-	COMPILER_SET="$(COMPLER_SET)" \
+	COMPILER_SET="$(COMPILER_SET)" \
 	CC="$(CC)" \
 	FC="$(FC)" \
 	CXX="$(CXX)" \
