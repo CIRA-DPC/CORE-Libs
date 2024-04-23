@@ -31,6 +31,18 @@ jobs:
     - name: Debug make
       run: make debug
 
+    - name: Build base libraries
+      run: make base
+
+    - name: Build all libraries
+      run: make all
+
     - name: Build package
       run: |
-        make package PACK_VER=$(git describe --tags --abbrev=0)
+        make package PACK_VER=$(git describe --tags)
+    
+    # - name: Upload package
+    #   run: |
+    #     curl -s -T $(ls *.tar.gz) \
+    #       -u ${{ secrets.LIB_UPLOAD_USER}}:${{ secrets.LIB_UPLOAD_URL }} \
+    #       testfile ${{ secrets.LIB_UPLOAD_URL }}
