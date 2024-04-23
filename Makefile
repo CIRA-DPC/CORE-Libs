@@ -123,7 +123,7 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 libmfhdf.a: hdf-4.2.15.tar.gz | base
 	PATH="$(PATH)" \
 	PREFIX="$(prefix)" \
-    COMPLIER_SET="$(COMPLER_SET)" \
+	COMPLIER_SET="$(COMPLER_SET)" \
 	CC="$(CC)" \
 	CXX="$(CXX)" \
 	F77="$(FC)" \
@@ -146,39 +146,49 @@ libsz.a: szip-2.1.1.tar.gz $(EXTRA_LIBS)
 libz.a: zlib-1.2.11.tar.gz $(EXTRA_LIBS)
 libtirpc.a: libtirpc-1.3.1.tar.gz
 	@echo "Building libtirpc"
-    COMPLIER_SET="$(COMPLER_SET)" \
 	PREFIX="$(prefix)" \
-	COMPILER_SET="$(COMPLER_SET)" \
-	CC="$(CC)" \
-	F77="$(FC)" \
-	CXX="$(CXX)" \
 	CONFIGFLAGS="--disable-gssapi" \
-	CPPFLAGS="$(CPPFLAGS)"
-	CFLAGS="$(CFLAGS)" \
-	FFLAGS="$(FFLAGS)" \
-	CXXFLAGS="$(CXXFLAGS)" \
-	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-	LDFLAGS="$(LDFLAGS)" \
-	ONEAPI_PATH="$(ONEAPI_PATH)" \
 	./build_package.sh $<
+# libtirpc.a: libtirpc-1.3.1.tar.gz
+# 	@echo "Building libtirpc"
+# 	COMPLIER_SET="$(COMPLER_SET)" \
+# 	PREFIX="$(prefix)" \
+# 	COMPILER_SET="$(COMPLER_SET)" \
+# 	CC="$(CC)" \
+# 	F77="$(FC)" \
+# 	CXX="$(CXX)" \
+# 	CONFIGFLAGS="--disable-gssapi" \
+# 	CPPFLAGS="$(CPPFLAGS)"
+# 	CFLAGS="$(CFLAGS)" \
+# 	FFLAGS="$(FFLAGS)" \
+# 	CXXFLAGS="$(CXXFLAGS)" \
+# 	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
+# 	LDFLAGS="$(LDFLAGS)" \
+# 	ONEAPI_PATH="$(ONEAPI_PATH)" \
+# 	./build_package.sh $<
 
 %.a:
 	@echo "Building $<"
-	COMPLIER_SET="$(COMPLER_SET)"
 	PREFIX="$(prefix)" \
-	COMPILER_SET="$(COMPLER_SET)" \
-	CC="$(CC)" \
-	FC="$(FC)" \
-	CXX="$(CXX)" \
-	CPPFLAGS="$(CPPFLAGS)" \
-	CFLAGS="$(CFLAGS)" \
-	FFLAGS="$(FFLAGS)" \
-	CXXFLAGS="$(CXXFLAGS)" \
-	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-	LDFLAGS="$(LDFLAGS)" \
-	LIBS="$(LIBS)" \
-	ONEAPI_PATH="$(ONEAPI_PATH)" \
 	./build_package.sh $<
+
+# %.a:
+# 	@echo "Building $<"
+# 	COMPLIER_SET="$(COMPLER_SET)"
+# 	PREFIX="$(prefix)" \
+# 	COMPILER_SET="$(COMPLER_SET)" \
+# 	CC="$(CC)" \
+# 	FC="$(FC)" \
+# 	CXX="$(CXX)" \
+# 	CPPFLAGS="$(CPPFLAGS)" \
+# 	CFLAGS="$(CFLAGS)" \
+# 	FFLAGS="$(FFLAGS)" \
+# 	CXXFLAGS="$(CXXFLAGS)" \
+# 	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
+# 	LDFLAGS="$(LDFLAGS)" \
+# 	LIBS="$(LIBS)" \
+# 	ONEAPI_PATH="$(ONEAPI_PATH)" \
+# 	./build_package.sh $<
 
 # phony rules
 .PHONY: makedir
