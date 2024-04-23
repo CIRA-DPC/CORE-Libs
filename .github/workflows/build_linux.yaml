@@ -31,6 +31,6 @@ jobs:
     - name: Debug make
       run: make debug
 
-    # - name: Build package
-    #   run: |
-    #     make all
+    - name: Build package
+      run: |
+        make V=1 all
