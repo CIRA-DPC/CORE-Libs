@@ -4,6 +4,7 @@
 
 PACKAGE=$1
 PACKAGE_VERSION=$2
+COMPILER_SET=$3
 
 OS=`uname -s | tr '[:upper:]' '[:lower:]'`
 if [ "${OS}" = "linux" ]; then
@@ -15,4 +16,4 @@ elif [ "${OS}" = "darwin" ]; then
     MACH=`uname -m`
 fi
 
-echo ${PACKAGE}-${PACKAGE_VERSION}-${OS}-${MACH}.tar.gz
+echo ${PACKAGE}-${PACKAGE_VERSION}-${OS}-${COMPILER_SET}-${MACH}.tar.gz

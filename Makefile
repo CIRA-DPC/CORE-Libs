@@ -10,46 +10,40 @@ libdir := $(exec_prefix)/lib
 includedir := $(exec_prefix)/include
 packdir := $(basedir)/packages
 
-# tool macros
-CC ?= icc
-FC ?= ifort
-CXX ?= icpc
+COMPILER_SET ?= gnu
+ifeq ($(COMPILER_SET),gnu)
+    CC = gcc
+    CXX = g++
+    FC = gfortran
+else ifeq ($(COMPILER_SET),intel)
+    CC = icc
+    CXX = icpc
+    FC = ifort
+else
+	$(error COMPILER_SET must be one of [gnu, intel]. Received: $(COMPILER_SET))
+endif
 
 UNAME_S := $(shell uname -s)
 CLI_TOOLS=/Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
 BUILD_LIBTIRPC := true
-CPPFLAGS :=
-CFLAGS :=
-FFLAGS := -std=legacy
-CXXFLAGS :=
 ifeq ($(UNAME_S), Darwin)
     BUILD_LIBTIRPC := false
     ifeq ($(wildcard $(CLI_TOOLS)),)
         $(error Command Line Tools not found: Install using `xcode-select --install`)
 	endif
-	ifeq ($(CC), icc)
-        CFLAGS := -isysroot $(CLI_TOOLS)
+	ifeq ($(COMPLER_SET), gnu)
+		COMMON_FLAGS += --sysroot $(CLI_TOOLS)
+	else ifeq ($(COMPILER_SET), intel)
+        COMMON_FLAGS += -isysroot $(CLI_TOOLS)
 	else
-		CFLAGS := --sysroot $(CLI_TOOLS)
-	endif
-	ifeq ($(FC), ifort)
-        FFLAGS := -isysroot $(CLI_TOOLS)
-	else
-		FFLAGS := --sysroot $(CLI_TOOLS)
-	endif
-	ifeq ($(CXX), icpc)
-        CXXFLAGS := -isysroot $(CLI_TOOLS)
-	else
-		CXXFLAGS := --sysroot $(CLI_TOOLS)
-	endif
+	CFLAGS += $(COMMON_FLAGS)
+	CXXFLAGS += $(COMMON_FLAGS)
+	FFLAGS += $(COMMON_FLAGS)
 endif
 
 
 # complier and linker flags
 override CPPFLAGS := -I$(includedir) $(CPPFLAGS) -I/usr/local/include -I/usr/include
-# override CFLAGS := -I$(includedir) $(CFLAGS) -I/usr/local/include -I/usr/include
-# override FFLAGS := -I$(includedir) $(FFLAGS) -I/usr/local/include -I/usr/include
-# override CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
 override LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
 override LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
 override PATH := $(bindir):$(PATH)
@@ -60,15 +54,12 @@ LINK_LIBS := $(patsubst lib%.a,-l%,$(BASE_LIBS))
 
 PACK_NAME := core_libs
 PACK_VER := $(shell git describe --tags)
-PACK_FNAME := $(packdir)/$(shell ./create_package_fname.sh ${PACK_NAME} ${PACK_VER})
+PACK_FNAME := $(packdir)/$(shell ./create_package_fname.sh ${PACK_NAME} ${PACK_VER} ${COMPILER_SET})
 
 ifeq ($(BUILD_LIBTIRPC),true)
     EXTRA_LIBS := libtirpc.a
     LIBS := ${LIBS} -ltirpc
     CPPFLAGS += -I$(includedir)/tirpc
-    CFLAGS += -I$(includedir)/tirpc
-    CXXFLAGS += -I$(includedir)/tirpc
-    FFLAGS += -I$(includedir)/tirpc
     LINK_LIBS += -ltirpc
 endif
 
@@ -113,7 +104,8 @@ all: $(ALL_LIBS)
 base: $(BASE_LIBS)
 
 libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
-	PATH="$(PATH)" LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" PREFIX="$(prefix)" \
+    COMPLIER_SET="$(COMPLER_SET)" \
+	       PATH="$(PATH)" LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" PREFIX="$(prefix)" \
 		   CONFIGFLAGS="--with-szlib=$(prefix) --enable-fortran" \
 		   CC="$(prefix)/bin/h4cc" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
 		   FC="$(prefix)/bin/h4fc" F77="$(prefix)/bin/h4fc" FFLAGS="$(FFLAGS)" \
@@ -121,7 +113,8 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 		   ./build_package.sh $<
 	
 libmfhdf.a: hdf-4.2.15.tar.gz | base
-	PATH="$(PATH)" PREFIX="$(prefix)" \
+    COMPLIER_SET="$(COMPLER_SET)" \
+	       PATH="$(PATH)" PREFIX="$(prefix)" \
 	       CONFIGFLAGS="--with-szlib="$(prefix)" --with-jpeg="$(prefix)" --with-zlib="$(prefix)" --disable-netcdf" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
@@ -138,7 +131,8 @@ libsz.a: szip-2.1.1.tar.gz $(EXTRA_LIBS)
 libz.a: zlib-1.2.11.tar.gz $(EXTRA_LIBS)
 libtirpc.a: libtirpc-1.3.1.tar.gz
 	@echo "Building libtirpc"
-	PREFIX="$(prefix)" CONFIGFLAGS="--disable-gssapi" \
+    COMPLIER_SET="$(COMPLER_SET)" \
+	       PREFIX="$(prefix)" CONFIGFLAGS="--disable-gssapi" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
 		   F77="$(FC)" FFLAGS="$(FFLAGS)" \
@@ -148,7 +142,8 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 
 %.a:
 	@echo "Building $<"
-	PREFIX="$(prefix)" \
+    COMPLIER_SET="$(COMPLER_SET)" \
+	       PREFIX="$(prefix)" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
 		   FC="$(FC)" FFLAGS="$(FFLAGS)" \
