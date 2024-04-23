@@ -22,4 +22,4 @@ jobs:
       run: sudo apt-get install gfortran
 
     - name: Build package
-      run: make
+      run: make base
