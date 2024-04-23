@@ -18,6 +18,7 @@ CXX ?= icpc
 UNAME_S := $(shell uname -s)
 CLI_TOOLS=/Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
 BUILD_LIBTIRPC := true
+CPPFLAGS :=
 CFLAGS :=
 FFLAGS := -std=legacy
 CXXFLAGS :=
@@ -45,9 +46,10 @@ endif
 
 
 # complier and linker flags
-override CFLAGS := -I$(includedir) $(CFLAGS) -I/usr/local/include -I/usr/include
-override FFLAGS := -I$(includedir) $(FFLAGS) -I/usr/local/include -I/usr/include
-override CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
+override CPPFLAGS := -I$(includedir) $(CPPFLAGS) -I/usr/local/include -I/usr/include
+# override CFLAGS := -I$(includedir) $(CFLAGS) -I/usr/local/include -I/usr/include
+# override FFLAGS := -I$(includedir) $(FFLAGS) -I/usr/local/include -I/usr/include
+# override CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
 override LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
 override LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
 override PATH := $(bindir):$(PATH)
@@ -63,6 +65,7 @@ PACK_FNAME := $(packdir)/$(shell ./create_package_fname.sh ${PACK_NAME} ${PACK_V
 ifeq ($(BUILD_LIBTIRPC),true)
     EXTRA_LIBS := libtirpc.a
     LIBS := ${LIBS} -ltirpc
+    CPPFLAGS += -I$(includedir)/tirpc
     CFLAGS += -I$(includedir)/tirpc
     CXXFLAGS += -I$(includedir)/tirpc
     FFLAGS += -I$(includedir)/tirpc
@@ -87,6 +90,7 @@ debug:
 	@echo "libdir $(libdir)"
 	@echo "includedir $(includedir)"
 	@echo "packdir $(packdir)"
+	@echo "CPPFLAGS $(CPPFLAGS)"
 	@echo "CFLAGS $(CFLAGS)"
 	@echo "CXXFLAGS $(CXXFLAGS)"
 	@echo "FFLAGS $(FFLAGS)"
@@ -111,7 +115,7 @@ base: $(BASE_LIBS)
 libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 	PATH="$(PATH)" LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" PREFIX="$(prefix)" \
 		   CONFIGFLAGS="--with-szlib=$(prefix) --enable-fortran" \
-		   CC="$(prefix)/bin/h4cc" CFLAGS="$(CFLAGS)" \
+		   CC="$(prefix)/bin/h4cc" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
 		   FC="$(prefix)/bin/h4fc" F77="$(prefix)/bin/h4fc" FFLAGS="$(FFLAGS)" \
 		   LDFLAGS="$(LDFLAGS)" LIBS="$(LINK_LIBS) $(libdir)/libmfhdf.a" ONEAPI_PATH="$(ONEAPI_PATH)" \
 		   ./build_package.sh $<
@@ -120,7 +124,7 @@ libmfhdf.a: hdf-4.2.15.tar.gz | base
 	PATH="$(PATH)" PREFIX="$(prefix)" \
 	       CONFIGFLAGS="--with-szlib="$(prefix)" --with-jpeg="$(prefix)" --with-zlib="$(prefix)" --disable-netcdf" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
+		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
 		   F77="$(FC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
 		   LDFLAGS="$(LDFLAGS)" LIBS="$(LINK_LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
@@ -136,7 +140,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	@echo "Building libtirpc"
 	PREFIX="$(prefix)" CONFIGFLAGS="--disable-gssapi" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
+		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
 		   F77="$(FC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
 		   LDFLAGS="$(LDFLAGS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
@@ -146,7 +150,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	@echo "Building $<"
 	PREFIX="$(prefix)" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-		   CC="$(CC)" $CFLAGS="$(CFLAGS)" \
+		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
 		   FC="$(FC)" FFLAGS="$(FFLAGS)" \
 		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
 		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
