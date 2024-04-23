@@ -19,21 +19,21 @@ if [ -d "${TEMPDIR}" ]; then
 fi
 mkdir -p ${TEMPDIR}
 
-if [[ "${COMPILER_SET}" == "intel" ]]; then
-    if [ -z ${ONEAPI_PATH} ]; then
-        ONEAPI_PATH=/opt/intel/oneapi
-    fi
-    set +e
-    source ${ONEAPI_PATH}/setvars.sh
-    sv_ret=$?
-    set -e
-    if [[ "${sv_ret}" == "3" ]]; then
-        echo "Intel environment already set"
-    elif [[ "${sv_ret}" != "0" ]]; then
-        echo "Error encountered in /opt/intel/oneapi/setvars.sh"
-        exit ${sv_ret}
-    fi
-fi
+# if [[ "${COMPILER_SET}" == "intel" ]]; then
+#     if [ -z ${ONEAPI_PATH} ]; then
+#         ONEAPI_PATH=/opt/intel/oneapi
+#     fi
+#     set +e
+#     source ${ONEAPI_PATH}/setvars.sh
+#     sv_ret=$?
+#     set -e
+#     if [[ "${sv_ret}" == "3" ]]; then
+#         echo "Intel environment already set"
+#     elif [[ "${sv_ret}" != "0" ]]; then
+#         echo "Error encountered in /opt/intel/oneapi/setvars.sh"
+#         exit ${sv_ret}
+#     fi
+# fi
 
 echo $?
 
@@ -41,22 +41,22 @@ cd ${TEMPDIR}
 tar -xzvf "${SRCFILE}" --directory "${TEMPDIR}" --strip-components=1
 
 echo "**********************************************************"
-echo -e PATH:\t${PATH}
-echo -e PREFIX:\t${PREFIX}
-echo -e COMPILER_SET:\t${COMPILER_SET}
-echo -e \tCC:\t${CC}
-echo -e \tCXX:\t${CXX}
-echo -e \tFC:\t${FC}
-echo -e \tF77:\t${F77}
-echo -e LD_LIBRARY_PATH:\t${LD_LIBRARY_PATH}
-echo -e CONFIGFLAGS:\t${CONFIGFLAGS}
-echo -e CPPFLAGS:\t${CPPFLAGS}
-echo -e CFLAGS:\t${CFLAGS}
-echo -e CXXFLAGS:\t${CXXFLAGS}
-echo -e FFLAGS:\t${FFLAGS}
-echo -e LIBS:\t${LIBS}
-echo -e LDFLAGS:\t${LDFLAGS}
-echo -e ONEAPI_PATH:\t${ONEAPI_PATH}
+echo -e "PATH:\t${PATH}"
+echo -e "PREFIX:\t${PREFIX}"
+echo -e "COMPILER_SET:\t${COMPILER_SET}"
+echo -e "\tCC:\t${CC}"
+echo -e "\tCXX:\t${CXX}"
+echo -e "\tFC:\t${FC}"
+echo -e "\tF77:\t${F77}"
+echo -e "LD_LIBRARY_PATH:\t${LD_LIBRARY_PATH}"
+echo -e "CONFIGFLAGS:\t${CONFIGFLAGS}"
+echo -e "CPPFLAGS:\t${CPPFLAGS}"
+echo -e "CFLAGS:\t${CFLAGS}"
+echo -e "CXXFLAGS:\t${CXXFLAGS}"
+echo -e "FFLAGS:\t${FFLAGS}"
+echo -e "LIBS:\t${LIBS}"
+echo -e "LDFLAGS:\t${LDFLAGS}"
+echo -e "ONEAPI_PATH:\t${ONEAPI_PATH}"
 echo "**********************************************************"
 
 ./configure --prefix=$(realpath ${PREFIX}) ${CONFIGFLAGS}
