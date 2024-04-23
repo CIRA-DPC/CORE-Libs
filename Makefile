@@ -54,7 +54,7 @@ override PATH := $(bindir):$(PATH)
 
 BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
 ALL_LIBS := $(BASE_LIBS) libmfhdf.a libhdfeos.a
-LINK_LIBS := $(patsubt lib%.a,-l%,$(BASE_LIBS))
+LINK_LIBS := $(patsubst lib%.a,-l%,$(BASE_LIBS))
 
 PACK_NAME := core_libs
 PACK_VER := $(shell git describe --tags)
@@ -132,6 +132,7 @@ libjpeg.a: jpegsrc.v9d.tar.gz $(EXTRA_LIBS)
 libsz.a: szip-2.1.1.tar.gz $(EXTRA_LIBS)
 libz.a: zlib-1.2.11.tar.gz $(EXTRA_LIBS)
 libtirpc.a: libtirpc-1.3.1.tar.gz
+    @echo "Building libtirpc"
 	PREFIX="$(prefix)" CONFIGFLAGS="--disable-gssapi" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
@@ -141,6 +142,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 		   ./build_package.sh $<
 
 %.a:
+    @echo "Building $<"
 	PREFIX="$(prefix)" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" $CFLAGS="$(CFLAGS)" \
