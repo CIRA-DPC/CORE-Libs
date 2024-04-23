@@ -132,7 +132,7 @@ libjpeg.a: jpegsrc.v9d.tar.gz $(EXTRA_LIBS)
 libsz.a: szip-2.1.1.tar.gz $(EXTRA_LIBS)
 libz.a: zlib-1.2.11.tar.gz $(EXTRA_LIBS)
 libtirpc.a: libtirpc-1.3.1.tar.gz
-    @echo "Building libtirpc"
+	@echo "Building libtirpc"
 	PREFIX="$(prefix)" CONFIGFLAGS="--disable-gssapi" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" CFLAGS="$(CFLAGS)" \
@@ -142,7 +142,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 		   ./build_package.sh $<
 
 %.a:
-    @echo "Building $<"
+	@echo "Building $<"
 	PREFIX="$(prefix)" \
 		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
 		   CC="$(CC)" $CFLAGS="$(CFLAGS)" \
