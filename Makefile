@@ -92,6 +92,9 @@ debug:
 	@echo "LDFLAGS $(LDFLAGS)"
 	@echo "LD_LIBRARY_PATH $(LD_LIBRARY_PATH)"
 	@echo "LINK_LIBS $(LINK_LIBS)"
+	@echo "BASE_LIBS $(BASE_LIBS)"
+	@echo "EXTRA_LIBS $(EXTRA_LIBS)"
+	@echo "ALL_LIBS $(ALL_LIBS)"
 
 .PHONY: package
 package: all
