@@ -33,4 +33,4 @@ jobs:
 
     - name: Build package
       run: |
-        make all
+        make package PACK_VER=$(git describe --tags --abbrev=0)
