@@ -104,24 +104,39 @@ all: $(ALL_LIBS)
 base: $(BASE_LIBS)
 
 libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
-    COMPLIER_SET="$(COMPLER_SET)" \
-	       PATH="$(PATH)" LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" PREFIX="$(prefix)" \
-		   CONFIGFLAGS="--with-szlib=$(prefix) --enable-fortran" \
-		   CC="$(prefix)/bin/h4cc" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
-		   FC="$(prefix)/bin/h4fc" F77="$(prefix)/bin/h4fc" FFLAGS="$(FFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LINK_LIBS) $(libdir)/libmfhdf.a" ONEAPI_PATH="$(ONEAPI_PATH)" \
-		   ./build_package.sh $<
+	PATH="$(PATH)" \
+	PREFIX="$(prefix)" \
+	COMPLIER_SET="$(COMPLER_SET)" \
+	CC="$(prefix)/bin/h4cc" \
+	FC="$(prefix)/bin/h4fc" \
+	F77="$(prefix)/bin/h4fc" \
+	CONFIGFLAGS="--with-szlib=$(prefix) --enable-fortran" \
+	CPPFLAGS="$(CPPFLAGS)" \
+	CFLAGS="$(CFLAGS)" \
+	FFLAGS="$(FFLAGS)" \
+	LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" \
+	LDFLAGS="$(LDFLAGS)" \
+	LIBS="$(LINK_LIBS) $(libdir)/libmfhdf.a" \
+	ONEAPI_PATH="$(ONEAPI_PATH)" \
+	./build_package.sh $<
 	
 libmfhdf.a: hdf-4.2.15.tar.gz | base
+	PATH="$(PATH)" \
+	PREFIX="$(prefix)" \
     COMPLIER_SET="$(COMPLER_SET)" \
-	       PATH="$(PATH)" PREFIX="$(prefix)" \
-	       CONFIGFLAGS="--with-szlib="$(prefix)" --with-jpeg="$(prefix)" --with-zlib="$(prefix)" --disable-netcdf" \
-		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
-		   F77="$(FC)" FFLAGS="$(FFLAGS)" \
-		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LINK_LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
-		   ./build_package.sh $<
+	CC="$(CC)" \
+	CXX="$(CXX)" \
+	F77="$(FC)" \
+	CONFIGFLAGS="--with-szlib="$(prefix)" --with-jpeg="$(prefix)" --with-zlib="$(prefix)" --disable-netcdf" \
+	CPPFLAGS="$(CPPFLAGS)" \
+	CFLAGS="$(CFLAGS)" \
+	FFLAGS="$(FFLAGS)" \
+	CXXFLAGS="$(CXXFLAGS)" \
+	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
+	LDFLAGS="$(LDFLAGS)" \
+	LIBS="$(LINK_LIBS)" \
+	ONEAPI_PATH="$(ONEAPI_PATH)" \
+	./build_package.sh $<
 
 libfl.a: flex-2.6.4.tar.gz liby.a
 
@@ -132,24 +147,38 @@ libz.a: zlib-1.2.11.tar.gz $(EXTRA_LIBS)
 libtirpc.a: libtirpc-1.3.1.tar.gz
 	@echo "Building libtirpc"
     COMPLIER_SET="$(COMPLER_SET)" \
-	       PREFIX="$(prefix)" CONFIGFLAGS="--disable-gssapi" \
-		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
-		   F77="$(FC)" FFLAGS="$(FFLAGS)" \
-		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
-		   ./build_package.sh $<
+	PREFIX="$(prefix)" \
+	COMPILER_SET="$(COMPLER_SET)" \
+	CC="$(CC)" \
+	F77="$(FC)" \
+	CXX="$(CXX)" \
+	CONFIGFLAGS="--disable-gssapi" \
+	CPPFLAGS="$(CPPFLAGS)"
+	CFLAGS="$(CFLAGS)" \
+	FFLAGS="$(FFLAGS)" \
+	CXXFLAGS="$(CXXFLAGS)" \
+	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
+	LDFLAGS="$(LDFLAGS)" \
+	ONEAPI_PATH="$(ONEAPI_PATH)" \
+	./build_package.sh $<
 
 %.a:
 	@echo "Building $<"
-    COMPLIER_SET="$(COMPLER_SET)" \
-	       PREFIX="$(prefix)" \
-		   LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
-		   CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" \
-		   FC="$(FC)" FFLAGS="$(FFLAGS)" \
-		   CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
-		   LDFLAGS="$(LDFLAGS)" LIBS="$(LIBS)" ONEAPI_PATH="$(ONEAPI_PATH)" \
-		   ./build_package.sh $<
+	COMPLIER_SET="$(COMPLER_SET)"
+	PREFIX="$(prefix)" \
+	COMPILER_SET="$(COMPLER_SET)" \
+	CC="$(CC)" \
+	FC="$(FC)" \
+	CXX="$(CXX)" \
+	CPPFLAGS="$(CPPFLAGS)" \
+	CFLAGS="$(CFLAGS)" \
+	FFLAGS="$(FFLAGS)" \
+	CXXFLAGS="$(CXXFLAGS)" \
+	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" \
+	LDFLAGS="$(LDFLAGS)" \
+	LIBS="$(LIBS)" \
+	ONEAPI_PATH="$(ONEAPI_PATH)" \
+	./build_package.sh $<
 
 # phony rules
 .PHONY: makedir
