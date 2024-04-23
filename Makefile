@@ -35,7 +35,7 @@ ifeq ($(UNAME_S), Darwin)
 		COMMON_FLAGS += --sysroot $(CLI_TOOLS)
 	else ifeq ($(COMPILER_SET), intel)
         COMMON_FLAGS += -isysroot $(CLI_TOOLS)
-	else
+	endif
 	CFLAGS += $(COMMON_FLAGS)
 	CXXFLAGS += $(COMMON_FLAGS)
 	FFLAGS += $(COMMON_FLAGS)
