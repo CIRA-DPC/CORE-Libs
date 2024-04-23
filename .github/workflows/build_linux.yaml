@@ -13,13 +13,20 @@ jobs:
   build-linux-gfortran:
     runs-on: ubuntu-latest
 
+    env:
+      CC: gcc
+      FC: gfortran
+      CXX: icpc
+
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
     - name: Install Fortran compiler (gfortran)
-      run: sudo apt-get install gfortran
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gfortran gcc g++
 
     - name: Build package
       run: make base
