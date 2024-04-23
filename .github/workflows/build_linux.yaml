@@ -29,4 +29,5 @@ jobs:
         sudo apt-get install -y gfortran gcc g++
 
     - name: Build package
-      run: make base
+      run: |
+        make all
