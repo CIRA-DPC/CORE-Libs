@@ -16,7 +16,7 @@ jobs:
     env:
       CC: gcc
       FC: gfortran
-      CXX: icpc
+      CXX: g++
 
     steps:
     - uses: actions/checkout@v3
