@@ -55,5 +55,5 @@ jobs:
     - name: Upload package
       run: |
         curl -s -T $(ls packages/*.tar.gz) \
-          -u ${{ secrets.LIB_UPLOAD_USER}}:${{ secrets.LIB_UPLOAD_URL }} \
-          testfile ${{ secrets.LIB_UPLOAD_URL }}
+          -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
+          ${{ secrets.LIB_UPLOAD_URL }}
