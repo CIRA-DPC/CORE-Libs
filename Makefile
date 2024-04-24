@@ -44,6 +44,9 @@ endif
 
 # complier and linker flags
 override CPPFLAGS := -I$(includedir) $(CPPFLAGS) -I/usr/local/include -I/usr/include
+override CFLAGS := -I$(includedir) $(CFLAGS) -I/usr/local/include -I/usr/include
+override CXXFLAGS := -I$(includedir) $(CXXFLAGS) -I/usr/local/include -I/usr/include
+override FFLAGS := -I$(includedir) $(FFLAGS) -I/usr/local/include -I/usr/include
 override LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
 override LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
 override PATH := $(bindir):$(PATH)
