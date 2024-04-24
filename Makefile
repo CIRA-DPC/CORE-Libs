@@ -109,7 +109,7 @@ base: $(BASE_LIBS)
 libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 	PATH="$(PATH)" \
 	PREFIX="$(prefix)" \
-	COMPLIER_SET="$(COMPILER_SET)" \
+	COMPILER_SET="$(COMPILER_SET)" \
 	CC="$(prefix)/bin/h4cc" \
 	FC="$(prefix)/bin/h4fc" \
 	F77="$(prefix)/bin/h4fc" \
@@ -126,7 +126,7 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 libmfhdf.a: hdf-4.2.15.tar.gz | base
 	PATH="$(PATH)" \
 	PREFIX="$(prefix)" \
-	COMPLIER_SET="$(COMPILER_SET)" \
+	COMPILER_SET="$(COMPILER_SET)" \
 	CC="$(CC)" \
 	CXX="$(CXX)" \
 	F77="$(FC)" \
