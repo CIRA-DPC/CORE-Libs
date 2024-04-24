@@ -43,9 +43,14 @@ endif
 
 
 # complier and linker flags
+# Using override to ensure that the flags are appended to any flags provide by the user
 override CPPFLAGS := -I$(includedir) $(CPPFLAGS) -I/usr/local/include -I/usr/include
 override LDFLAGS := -L$(libdir) $(LDFLAGS) -L/usr/local/lib -L/usr/lib
-override LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
+ifdef LD_LIBRARY_PATH
+    override LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH):/usr/local/lib:/usr/lib
+else
+    LD_LIBRARY_PATH := $(libdir):/usr/local/lib:/usr/lib
+endif
 override PATH := $(bindir):$(PATH)
 
 BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
@@ -56,10 +61,11 @@ PACK_NAME := core_libs
 PACK_VER := $(shell git describe --tags)
 PACK_FNAME := $(packdir)/$(shell ./create_package_fname.sh ${PACK_NAME} ${PACK_VER} ${COMPILER_SET})
 
+# Apparently once override is used once it must always be used
 ifeq ($(BUILD_LIBTIRPC),true)
     EXTRA_LIBS := libtirpc.a
     LIBS := ${LIBS} -ltirpc
-    CPPFLAGS += -I$(includedir)/tirpc
+    override CPPFLAGS += -I$(includedir)/tirpc
     LINK_LIBS += -ltirpc
 endif
 
@@ -85,6 +91,7 @@ debug:
 	@echo "libdir $(libdir)"
 	@echo "includedir $(includedir)"
 	@echo "packdir $(packdir)"
+	@echo "BUILD_LIBTIRPC $(BUILD_LIBTIRPC)"
 	@echo "CPPFLAGS $(CPPFLAGS)"
 	@echo "CFLAGS $(CFLAGS)"
 	@echo "CXXFLAGS $(CXXFLAGS)"
