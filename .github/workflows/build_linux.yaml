@@ -49,9 +49,23 @@ jobs:
       run: make all
 
     - name: Build package
+      id: build
       run: |
         make package PACK_VER=$(git describe --tags)
+
+    - name: Set variables
+      id: setvars
+      run:
+        pack_fname=$(./create_package_fname.sh core_libs \
+            $(git describe --tags) gnu)
+        echo "::set-output name=pack_fname::$pack_fname"
     
+    - name: Upload artifact to GitHub
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.setvars.outputs.pack_fname }}
+        path: packages/${{ steps.setvars.outputs.pack_fname }}
+
     - name: Upload package
       run: |
         curl -s -T $(ls packages/*.tar.gz) \
