@@ -58,6 +58,7 @@ jobs:
       run:
         pack_fname=$(./create_package_fname.sh core_libs \
             $(git describe --tags) gnu)
+        echo $pack_fname
         echo "::set-output name=pack_fname::$pack_fname"
     
     - name: Upload artifact to GitHub
