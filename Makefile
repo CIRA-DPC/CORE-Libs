@@ -15,6 +15,7 @@ ifeq ($(COMPILER_SET),gnu)
     CC = gcc
     CXX = g++
     FC = gfortran
+    FFLAGS += -fallow-argument-mismatch -fallow-invalid-boz
 else ifeq ($(COMPILER_SET),intel)
     CC = icc
     CXX = icpc
@@ -69,9 +70,9 @@ ifeq ($(BUILD_LIBTIRPC),true)
     LINK_LIBS += -ltirpc
 endif
 
-CFLAGS += $(CPPFLAGS)
-CXXFLAGS += $(CPPFLAGS)
-FFLAGS += $(CPPFLAGS)
+# CFLAGS += $(CPPFLAGS)
+# CXXFLAGS += $(CPPFLAGS)
+# FFLAGS += $(CPPFLAGS)
 
 VPATH := $(srcdir) $(libdir)
 
