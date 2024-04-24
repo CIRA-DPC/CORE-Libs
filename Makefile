@@ -70,10 +70,6 @@ ifeq ($(BUILD_LIBTIRPC),true)
     LINK_LIBS += -ltirpc
 endif
 
-# CFLAGS += $(CPPFLAGS)
-# CXXFLAGS += $(CPPFLAGS)
-# FFLAGS += $(CPPFLAGS)
-
 VPATH := $(srcdir) $(libdir)
 
 # clean files list
