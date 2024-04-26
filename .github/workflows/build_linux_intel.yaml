@@ -13,7 +13,7 @@ jobs:
   build-linux-intel:
     runs-on: ubuntu-latest
     container:
-      image: intel/oneapi-hpckit:latest
+      image: intel/oneapi-hpckit:2023.2.1-devel-ubuntu22.04
 
     env:
       CC: icc
