@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-linux-gfortran:
+  build-linux-gnu:
     runs-on: ubuntu-latest
 
     env:
@@ -62,7 +62,67 @@ jobs:
         echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
     
     - name: Upload artifact to GitHub
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.setvars.outputs.pack_fname }}
+        path: packages/${{ steps.setvars.outputs.pack_fname }}
+
+    - name: Upload package
+      run: |
+        curl -s -T $(ls packages/*.tar.gz) \
+          -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
+          ${{ secrets.LIB_UPLOAD_URL }}
+
+  build-linux-intel:
+    runs-on: ubuntu-latest
+    container:
+      image: intel/oneapi-hpckit:latest
+
+    env:
+      CC: icc
+      FC: ifort
+      CXX: icpc
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - Debug make
+      run: make debug
+    
+    - name: Build base libraries
+      run: make base
+    
+    - name: "Debug: List libs and headers"
+      run: |
+        echo -e "\n==============="
+        echo "Built libraries"
+        echo "==============="
+        ls -lR build/lib
+        echo -e "\n============="
+        echo "Built headers"
+        echo "============="
+        ls -lR build/include
+
+    - name: Build all libraries
+      run: make all
+
+    - name: Build package
+      id: build
+      run: |
+        make package PACK_VER=$(git describe --tags)
+
+    - name: Set variables
+      id: setvars
+      run: |
+        pack_fname=$(./create_package_fname.sh core_libs \
+            $(git describe --tags) intel)
+        echo "PACKAGE NAME: $pack_fname"
+        echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
+    
+    - name: Upload artifact to GitHub
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.setvars.outputs.pack_fname }}
         path: packages/${{ steps.setvars.outputs.pack_fname }}
