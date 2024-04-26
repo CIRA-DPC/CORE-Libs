@@ -19,6 +19,7 @@ jobs:
       CC: icc
       FC: ifort
       CXX: icpc
+      COMPILER_SET: intel
 
     steps:
       - uses: actions/checkout@v4
