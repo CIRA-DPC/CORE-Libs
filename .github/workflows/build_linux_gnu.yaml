@@ -1,0 +1,74 @@
+name: Build Linux Gnu
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-linux-gnu:
+    runs-on: ubuntu-latest
+
+    env:
+      CC: gcc
+      FC: gfortran
+      CXX: g++
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Fortran compiler (gfortran)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran gcc g++
+
+      - name: Debug make
+        run: make debug
+
+      - name: Build base libraries
+        run: make base
+
+      - name: "Debug: List libs and headers"
+        run: |
+          echo -e "\n==============="
+          echo "Built libraries"
+          echo "==============="
+          ls -lR build/lib
+          echo -e "\n============="
+          echo "Built headers"
+          echo "============="
+          ls -lR build/include
+
+      - name: Build all libraries
+        run: make all
+
+      - name: Build package
+        id: build
+        run: |
+          make package PACK_VER=$(git describe --tags)
+
+      - name: Set variables
+        id: setvars
+        run: |
+          pack_fname=$(./create_package_fname.sh core_libs \
+              $(git describe --tags) gnu)
+          echo "PACKAGE NAME: $pack_fname"
+          echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setvars.outputs.pack_fname }}
+          path: packages/${{ steps.setvars.outputs.pack_fname }}
+
+      - name: Upload package
+        run: |
+          curl -s -T $(ls packages/*.tar.gz) \
+            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
+            ${{ secrets.LIB_UPLOAD_URL }}
