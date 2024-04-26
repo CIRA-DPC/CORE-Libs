@@ -1,4 +1,4 @@
-name: Build Linux intel
+name: Build Linux Intel
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       - name: Install system packages
         run: |
           apt update
-          apt install m4
+          apt install -y m4
 
       - name: Debug make
         run: make debug
