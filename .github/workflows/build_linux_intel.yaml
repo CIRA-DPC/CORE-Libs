@@ -28,6 +28,9 @@ jobs:
 
       - name: Install system packages
         run: |
+          # Need to remove this because of GPG key error
+          # Not needed now that compilers are installed
+          rm /etc/apt/sources.list.d/oneAPI.list
           apt update
           apt install -y m4
 
