@@ -19,59 +19,59 @@ jobs:
       CXX: g++
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Install Fortran compiler (gfortran)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gfortran gcc g++
+      - name: Install Fortran compiler (gfortran)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran gcc g++
 
-    - name: Debug make
-      run: make debug
+      - name: Debug make
+        run: make debug
 
-    - name: Build base libraries
-      run: make base
+      - name: Build base libraries
+        run: make base
 
-    - name: "Debug: List libs and headers"
-      run: |
-        echo -e "\n==============="
-        echo "Built libraries"
-        echo "==============="
-        ls -lR build/lib
-        echo -e "\n============="
-        echo "Built headers"
-        echo "============="
-        ls -lR build/include
+      - name: "Debug: List libs and headers"
+        run: |
+          echo -e "\n==============="
+          echo "Built libraries"
+          echo "==============="
+          ls -lR build/lib
+          echo -e "\n============="
+          echo "Built headers"
+          echo "============="
+          ls -lR build/include
 
-    - name: Build all libraries
-      run: make all
+      - name: Build all libraries
+        run: make all
 
-    - name: Build package
-      id: build
-      run: |
-        make package PACK_VER=$(git describe --tags)
+      - name: Build package
+        id: build
+        run: |
+          make package PACK_VER=$(git describe --tags)
 
-    - name: Set variables
-      id: setvars
-      run: |
-        pack_fname=$(./create_package_fname.sh core_libs \
-            $(git describe --tags) gnu)
-        echo "PACKAGE NAME: $pack_fname"
-        echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
-    
-    - name: Upload artifact to GitHub
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ steps.setvars.outputs.pack_fname }}
-        path: packages/${{ steps.setvars.outputs.pack_fname }}
+      - name: Set variables
+        id: setvars
+        run: |
+          pack_fname=$(./create_package_fname.sh core_libs \
+              $(git describe --tags) gnu)
+          echo "PACKAGE NAME: $pack_fname"
+          echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
 
-    - name: Upload package
-      run: |
-        curl -s -T $(ls packages/*.tar.gz) \
-          -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
-          ${{ secrets.LIB_UPLOAD_URL }}
+      - name: Upload artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setvars.outputs.pack_fname }}
+          path: packages/${{ steps.setvars.outputs.pack_fname }}
+
+      - name: Upload package
+        run: |
+          curl -s -T $(ls packages/*.tar.gz) \
+            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
+            ${{ secrets.LIB_UPLOAD_URL }}
 
   build-linux-intel:
     runs-on: ubuntu-latest
@@ -84,51 +84,51 @@ jobs:
       CXX: icpc
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - Debug make
-      run: make debug
-    
-    - name: Build base libraries
-      run: make base
-    
-    - name: "Debug: List libs and headers"
-      run: |
-        echo -e "\n==============="
-        echo "Built libraries"
-        echo "==============="
-        ls -lR build/lib
-        echo -e "\n============="
-        echo "Built headers"
-        echo "============="
-        ls -lR build/include
+      - name: Debug make
+        run: make debug
 
-    - name: Build all libraries
-      run: make all
+      - name: Build base libraries
+        run: make base
 
-    - name: Build package
-      id: build
-      run: |
-        make package PACK_VER=$(git describe --tags)
+      - name: "Debug: List libs and headers"
+        run: |
+          echo -e "\n==============="
+          echo "Built libraries"
+          echo "==============="
+          ls -lR build/lib
+          echo -e "\n============="
+          echo "Built headers"
+          echo "============="
+          ls -lR build/include
 
-    - name: Set variables
-      id: setvars
-      run: |
-        pack_fname=$(./create_package_fname.sh core_libs \
-            $(git describe --tags) intel)
-        echo "PACKAGE NAME: $pack_fname"
-        echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
-    
-    - name: Upload artifact to GitHub
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ steps.setvars.outputs.pack_fname }}
-        path: packages/${{ steps.setvars.outputs.pack_fname }}
+      - name: Build all libraries
+        run: make all
 
-    - name: Upload package
-      run: |
-        curl -s -T $(ls packages/*.tar.gz) \
-          -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
-          ${{ secrets.LIB_UPLOAD_URL }}
+      - name: Build package
+        id: build
+        run: |
+          make package PACK_VER=$(git describe --tags)
+
+      - name: Set variables
+        id: setvars
+        run: |
+          pack_fname=$(./create_package_fname.sh core_libs \
+              $(git describe --tags) intel)
+          echo "PACKAGE NAME: $pack_fname"
+          echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setvars.outputs.pack_fname }}
+          path: packages/${{ steps.setvars.outputs.pack_fname }}
+
+      - name: Upload package
+        run: |
+          curl -s -T $(ls packages/*.tar.gz) \
+            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
+            ${{ secrets.LIB_UPLOAD_URL }}
