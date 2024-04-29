@@ -60,10 +60,17 @@ jobs:
       #     apt install -y m4
 
       - name: Debug make
-        run: make debug
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          echo "=================="
+          env
+          echo "=================="
+          make debug
 
       - name: Build base libraries
-        run: make base
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          make base
 
       - name: "Debug: List libs and headers"
         run: |
