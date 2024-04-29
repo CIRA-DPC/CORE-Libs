@@ -77,6 +77,7 @@ CLEAN_LIST := $(TARGET)
 
 .PHONY: debug
 debug:
+	@echo "======================="
 	@echo "CC $(CC)"
 	@echo "FC $(FC)"
 	@echo "CXX $(CXX)"
@@ -99,6 +100,9 @@ debug:
 	@echo "BASE_LIBS $(BASE_LIBS)"
 	@echo "EXTRA_LIBS $(EXTRA_LIBS)"
 	@echo "ALL_LIBS $(ALL_LIBS)"
+	@echo "======================="
+	@env | sort
+	@echo "======================="
 
 .PHONY: package
 package: all
