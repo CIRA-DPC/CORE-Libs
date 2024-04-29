@@ -23,14 +23,14 @@ jobs:
     steps:
       - name: Install Intel compilers
         run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install -y --no-install-recommends \
+          sudo su -
+          apt-get update
+          apt-get upgrade -y
+          apt-get install -y --no-install-recommends \
             curl ca-certificates gpg-agent software-properties-common
-          sudo curl -fsSL \
-            https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB | gpg --dearmor | tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg
-          sudo echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main " > /etc/apt/sources.list.d/oneAPI.list
-          sudo apt-get install -y --no-install-recommends \
+          curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB | gpg --dearmor | tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main " > /etc/apt/sources.list.d/oneAPI.list
+          apt-get install -y --no-install-recommends \
             ca-certificates \
             build-essential \
             pkg-config \
