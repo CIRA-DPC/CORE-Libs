@@ -89,6 +89,10 @@ jobs:
           source /opt/intel/oneapi/setvars.sh
           make all
 
+      - name: Debug config.log
+        if: always()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
+
       - name: Build package
         id: build
         run: |
