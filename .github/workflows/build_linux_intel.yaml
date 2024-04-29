@@ -12,27 +12,51 @@ on:
 jobs:
   build-linux-intel:
     runs-on: ubuntu-latest
-    container:
-      image: intel/oneapi-hpckit:2023.2.1-devel-ubuntu22.04
 
     env:
       CC: icc
       FC: ifort
       CXX: icpc
       COMPILER_SET: intel
+      DEBIAN_FRONTEND: noninteractive
 
     steps:
+      - name: Install Intel compilers
+        run: |
+          apt-get update
+          apt-get upgrade -y
+          apt-get install -y --no-install-recommends \
+            curl ca-certificates gpg-agent software-properties-common
+          curl -fsSL \
+            https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB | gpg --dearmor | tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main " > /etc/apt/sources.list.d/oneAPI.list
+          apt-get install -y --no-install-recommends \
+            ca-certificates \
+            build-essential \
+            pkg-config \
+            gnupg \
+            libarchive13 \
+            openssh-server \
+            openssh-client \
+            wget \
+            net-tools \
+            git \
+            cmake \
+            m4 \
+            intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic-2023.1.0 \
+            intel-oneapi-compiler-fortran-2023.1.0
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install system packages
-        run: |
-          # Need to remove this because of GPG key error
-          # Not needed now that compilers are installed
-          rm /etc/apt/sources.list.d/oneAPI.list
-          apt update
-          apt install -y m4
+      # - name: Install system packages
+      #   run: |
+      #     # Need to remove this because of GPG key error
+      #     # Not needed now that compilers are installed
+      #     rm /etc/apt/sources.list.d/oneAPI.list
+      #     apt update
+      #     apt install -y m4
 
       - name: Debug make
         run: make debug
@@ -42,6 +66,7 @@ jobs:
 
       - name: "Debug: List libs and headers"
         run: |
+          source /opt/intel/oneapi/setvars.sh
           echo -e "\n==============="
           echo "Built libraries"
           echo "==============="
@@ -52,11 +77,14 @@ jobs:
           ls -lR build/include
 
       - name: Build all libraries
-        run: make all
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          make all
 
       - name: Build package
         id: build
         run: |
+          source /opt/intel/oneapi/setvars.sh
           make package PACK_VER=$(git describe --tags)
 
       - name: Set variables
