@@ -46,22 +46,7 @@ cd ${TEMPDIR}
 tar -xzvf "${SRCFILE}" --directory "${TEMPDIR}" --strip-components=1
 
 echo "**********************************************************"
-echo -e "PATH:\t${PATH}"
-echo -e "PREFIX:\t${PREFIX}"
-echo -e "COMPILER_SET:\t${COMPILER_SET}"
-echo -e "\tCC:\t${CC}"
-echo -e "\tCXX:\t${CXX}"
-echo -e "\tFC:\t${FC}"
-echo -e "\tF77:\t${F77}"
-echo -e "CONFIGFLAGS:\t${CONFIGFLAGS}"
-echo -e "CPPFLAGS:\t${CPPFLAGS}"
-echo -e "CFLAGS:\t${CFLAGS}"
-echo -e "CXXFLAGS:\t${CXXFLAGS}"
-echo -e "FFLAGS:\t${FFLAGS}"
-echo -e "LIBS:\t${LIBS}"
-echo -e "LD_LIBRARY_PATH:\t${LD_LIBRARY_PATH}"
-echo -e "LDFLAGS:\t${LDFLAGS}"
-echo -e "ONEAPI_PATH:\t${ONEAPI_PATH}"
+env
 echo "**********************************************************"
 
 echo "Before configure"
