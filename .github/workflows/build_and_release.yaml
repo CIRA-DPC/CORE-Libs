@@ -1,13 +1,11 @@
 name: Build and Release
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+  release:
+    types: [created]
 
 jobs:
   build-linux-gnu:
@@ -200,8 +198,9 @@ jobs:
             -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
             ${{ secrets.LIB_UPLOAD_URL }}
   
-  release:
+  upload-release-assets:
     runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'created'
 
     needs: [build-linux-gnu, build-linux-intel]
 
