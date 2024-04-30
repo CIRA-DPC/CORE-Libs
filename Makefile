@@ -134,7 +134,7 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 	CPPFLAGS="$(CPPFLAGS)" \
 	CFLAGS="$(CFLAGS)" \
 	FFLAGS="$(FFLAGS)" \
-	LD_LIBRARY_PATH="$(prefix)/lib:$LD_LIBRARY_PATH" \
+	LD_LIBRARY_PATH="$(prefix)/lib:$(LD_LIBRARY_PATH)" \
 	LDFLAGS="$(LDFLAGS)" \
 	LIBS="$(LINK_LIBS) $(libdir)/libmfhdf.a" \
 	ONEAPI_PATH="$(ONEAPI_PATH)" \
