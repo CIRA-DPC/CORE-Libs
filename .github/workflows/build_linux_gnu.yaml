@@ -1,4 +1,4 @@
-name: Build Linux Gnu
+name: Build and Release
 
 on:
   push:
@@ -19,6 +19,9 @@ jobs:
       CXX: g++
       COMPILER_SET: gnu
       DEBIAN_FRONTEND: noninteractive
+
+    outputs:
+      package_fname: ${{ steps.setvars.outputs.package_fname }}
 
     steps:
       - uses: actions/checkout@v4
@@ -70,16 +73,16 @@ jobs:
       - name: Set variables
         id: setvars
         run: |
-          pack_fname=$(./create_package_fname.sh core_libs \
+          package_fname=$(./create_package_fname.sh core_libs \
               $(git describe --tags) gnu)
-          echo "PACKAGE NAME: $pack_fname"
-          echo "pack_fname=$pack_fname" >> $GITHUB_OUTPUT
+          echo "PACKAGE FNAME: $package_fname"
+          echo "package_fname=$package_fname" >> $GITHUB_OUTPUT
 
       - name: Upload artifact to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.setvars.outputs.pack_fname }}
-          path: packages/${{ steps.setvars.outputs.pack_fname }}
+          name: ${{ steps.setvars.outputs.package_fname }}
+          path: packages/${{ steps.setvars.outputs.package_fname }}
 
       - name: Upload package
         continue-on-error: true
@@ -87,3 +90,166 @@ jobs:
           curl -s -T $(ls packages/*.tar.gz) \
             -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
             ${{ secrets.LIB_UPLOAD_URL }}
+
+  build-linux-intel:
+    runs-on: ubuntu-latest
+
+    env:
+      CC: icc
+      FC: ifort
+      CXX: icpc
+      COMPILER_SET: intel
+      DEBIAN_FRONTEND: noninteractive
+
+    outputs:
+      package_fname: ${{ steps.setvars.outputs.package_fname }}
+
+    steps:
+      - name: Install Intel compilers
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y --no-install-recommends \
+            curl ca-certificates gpg-agent software-properties-common
+          sudo curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB | gpg --dearmor | tee /usr/share/keyrings/intel-oneapi-archive-keyring.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/intel-oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list > /dev/null
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -y --no-install-recommends \
+            ca-certificates \
+            build-essential \
+            pkg-config \
+            gnupg \
+            libarchive13 \
+            openssh-server \
+            openssh-client \
+            wget \
+            net-tools \
+            git \
+            cmake \
+            m4 \
+            intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic-2023.1.0 \
+            intel-oneapi-compiler-fortran-2023.1.0
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Debug make
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          echo "=================="
+          env | sort
+          echo "=================="
+          make debug
+
+      - name: Build base libraries
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          make base
+
+      - name: Debug config.log
+        if: failure()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
+
+      - name: "Debug: List libs and headers"
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          echo -e "\n==============="
+          echo "Built libraries"
+          echo "==============="
+          ls -lR build/lib
+          echo -e "\n============="
+          echo "Built headers"
+          echo "============="
+          ls -lR build/include
+
+      - name: Build all libraries
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          make all
+
+      - name: Debug config.log
+        if: failure()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
+
+      - name: Build package
+        id: build
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          make package PACK_VER=$(git describe --tags)
+
+      - name: Set variables
+        id: setvars
+        run: |
+          package_fname=$(./create_package_fname.sh core_libs \
+              $(git describe --tags) intel)
+          echo "PACKAGE NAME: $package_fname"
+          echo "package_fname=$packge_fname" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setvars.outputs.package_fname }}
+          path: packages/${{ steps.setvars.outputs.package_fname }}
+
+      - name: Upload package
+        continue-on-error: true
+        run: |
+          curl -s -T $(ls packages/*.tar.gz) \
+            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
+            ${{ secrets.LIB_UPLOAD_URL }}
+  
+  release:
+    runs-on: ubuntu-latest
+
+    needs: [build-linux-gnu, build-linux-intel]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-linux-gnu.outputs.package_fname }}
+          path: packages
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-linux-intel.outputs.package_fname }}
+          path: packages
+
+      - name: Upload release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.upload-release.outputs.upload_url }}
+          asset_path: packages/${{ needs.build-linux-gnu.outputs.package_fname }}
+          asset_name: ${{ needs.build-linux-gnu.outputs.package_fname }}
+          asset_content_type: application/gzip
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.upload-release.outputs.upload_url }}
+          asset_path: packages/${{ needs.build-linux-intel.outputs.package_fname }}
+          asset_name: ${{ needs.build-linux-intel.outputs.package_fname }}
+          asset_content_type: application/gzip
