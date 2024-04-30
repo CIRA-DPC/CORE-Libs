@@ -226,7 +226,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.upload-release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: packages/${{ needs.build-linux-gnu.outputs.package_fname }}
           asset_name: ${{ needs.build-linux-gnu.outputs.package_fname }}
           asset_content_type: application/gzip
@@ -236,7 +236,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.upload-release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: packages/${{ needs.build-linux-intel.outputs.package_fname }}
           asset_name: ${{ needs.build-linux-intel.outputs.package_fname }}
           asset_content_type: application/gzip
