@@ -72,6 +72,10 @@ jobs:
           source /opt/intel/oneapi/setvars.sh
           make base
 
+      - name: Debug config.log
+        if: failure()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
+
       - name: "Debug: List libs and headers"
         run: |
           source /opt/intel/oneapi/setvars.sh
@@ -90,7 +94,7 @@ jobs:
           make all
 
       - name: Debug config.log
-        if: always()
+        if: failure()
         run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
 
       - name: Build package
