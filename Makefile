@@ -54,7 +54,8 @@ else
 endif
 override PATH := $(bindir):$(PATH)
 
-BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
+# BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
+BASE_LIBS := libjpeg.a libsz.a liby.a libz.a
 ALL_LIBS := $(BASE_LIBS) libmfhdf.a libhdfeos.a
 LINK_LIBS := $(patsubst lib%.a,-l%,$(BASE_LIBS))
 
@@ -188,6 +189,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	LDFLAGS="$(LDFLAGS)" \
 	LIBS="$(LIBS)" \
 	ONEAPI_PATH="$(ONEAPI_PATH)" \
+	LEXLIB= \
 	./build_package.sh $<
 
 # phony rules
