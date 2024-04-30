@@ -82,6 +82,7 @@ jobs:
           path: packages/${{ steps.setvars.outputs.pack_fname }}
 
       - name: Upload package
+        continue-on-error: true
         run: |
           curl -s -T $(ls packages/*.tar.gz) \
             -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
