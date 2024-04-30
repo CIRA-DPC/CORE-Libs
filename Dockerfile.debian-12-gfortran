@@ -1,5 +1,5 @@
-ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
-FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:2.0.0 as build
+ARG EXT_REGISTRY="wolf.cira.colostate.edu:444/"
+FROM ${EXT_REGISTRY}docker.io/library/debian:bullseye-slim as build
 
 ARG WORKDIR=/app/core_libs
 ENV WORKDIR=${WORKDIR}
@@ -7,8 +7,25 @@ WORKDIR ${WORKDIR}
 
 # Install required packages
 RUN apt-get update && \
-    apt-get -y install m4 && \
+    apt-get upgrade && \
+    apt-get -y install \
+    wget \
+    build-essential \
+    gfortran \
+    m4 \
+    git \
+    libgmp-dev \
+    libmpfr-dev \
+    libmpc-dev && \
     rm -rf /var/cache/apt/archives
+
+RUN wget https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-12.3.0.tar.gz && \
+    tar xf gcc-12.3.0.tar.gz && \
+    cd gcc-12.3.0 && \
+    ./configure --prefix=/usr/local/gcc12 --enable-languages=c,c++,fortran --disable-bootstrap --disable-multilib && \
+    make && \
+    make install && \
+    rm -rf gcc-12-*
 
 # Installation prefix
 ARG PREFIX=${WORKDIR}/build
@@ -16,15 +33,23 @@ ENV PREFIX=${PREFIX}
 ARG TEMPDIR=${WORKDIR}/tmp
 ENV TEMPDIR=${TEMPDIR}
 
-ARG PATH=${PREFIX}/bin:${PATH}
+ARG PATH=/usr/local/gcc12/bin:${PREFIX}/bin:${PATH}
 ENV PATH=${PATH}
 
-COPY build_package.sh .
-COPY Makefile .
-COPY ./src ./src
+# COPY . .
 
-# Split these up for caching purposes
+ARG CC=gcc
+ARG FC=gfortran
+ARG CXX=g++
+# ENV CC=${CC}
+# ENV FC=${FC}
+# ENV CXX=${GXX}
+
+# Build the base packages
+COPY . .
 RUN make base
+
+# Build the HDF packages
 RUN make all
 
 # Package version number for packaging

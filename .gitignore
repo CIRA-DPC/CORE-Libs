@@ -1,4 +1,6 @@
 .DS_store
 build/**
 tmp/**
+# Allow all files in src but ignore all subdirectories
+src/*/
 packages/**
