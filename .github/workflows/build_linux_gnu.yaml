@@ -17,6 +17,8 @@ jobs:
       CC: gcc
       FC: gfortran
       CXX: g++
+      COMPILER_SET: gnu
+      DEBIAN_FRONTEND: noninteractive
 
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +34,14 @@ jobs:
         run: make debug
 
       - name: Build base libraries
-        run: make base
+        run: |
+          env | sort
+          echo "=================="
+          make debug
+
+      - name: Debug config.log
+        if: failure()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
 
       - name: "Debug: List libs and headers"
         run: |
@@ -47,6 +56,10 @@ jobs:
 
       - name: Build all libraries
         run: make all
+
+      - name: Debug config.log
+        if: failure()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
 
       - name: Build package
         id: build
