@@ -183,7 +183,7 @@ jobs:
           package_fname=$(./create_package_fname.sh core_libs \
               $(git describe --tags) intel)
           echo "PACKAGE NAME: $package_fname"
-          echo "package_fname=$packge_fname" >> $GITHUB_OUTPUT
+          echo "package_fname=$package_fname" >> $GITHUB_OUTPUT
 
       - name: Upload artifact to GitHub
         uses: actions/upload-artifact@v4
