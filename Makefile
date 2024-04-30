@@ -20,6 +20,7 @@ else ifeq ($(COMPILER_SET),intel)
     CC = icc
     CXX = icpc
     FC = ifort
+    COMMON_FLAGS = -diag-disable=10441
 else
 	$(error COMPILER_SET must be one of [gnu, intel]. Received: $(COMPILER_SET))
 endif
@@ -37,10 +38,11 @@ ifeq ($(UNAME_S), Darwin)
 	else ifeq ($(COMPILER_SET), intel)
         COMMON_FLAGS += -isysroot $(CLI_TOOLS)
 	endif
-	CFLAGS += $(COMMON_FLAGS)
-	CXXFLAGS += $(COMMON_FLAGS)
-	FFLAGS += $(COMMON_FLAGS)
 endif
+
+CFLAGS += $(COMMON_FLAGS)
+CXXFLAGS += $(COMMON_FLAGS)
+FFLAGS += $(COMMON_FLAGS)
 
 
 # complier and linker flags
@@ -69,6 +71,11 @@ ifeq ($(BUILD_LIBTIRPC),true)
     LIBS := ${LIBS} -ltirpc
     override CPPFLAGS += -I$(includedir)/tirpc
     LINK_LIBS += -ltirpc
+endif
+
+ifeq ($(COMPILER_SET),intel)
+    LIBS += -limf
+    LINK_LIBS += -limf
 endif
 
 VPATH := $(srcdir) $(libdir)
