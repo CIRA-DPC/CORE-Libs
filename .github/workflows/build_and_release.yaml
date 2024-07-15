@@ -83,11 +83,13 @@ jobs:
           path: packages/${{ steps.setvars.outputs.package_fname }}
 
       - name: Upload package
-        continue-on-error: true
         run: |
-          curl -s -T $(ls packages/*.tar.gz) \
-            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
-            ${{ secrets.LIB_UPLOAD_URL }}
+          for f in packages/*.tar.gz; do
+            curl -s -T $f \
+              -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_PASS }} \
+              ${{ secrets.LIB_UPLOAD_URL }}
+          done
+
 
   build-linux-intel:
     runs-on: ubuntu-latest
@@ -192,11 +194,13 @@ jobs:
           path: packages/${{ steps.setvars.outputs.package_fname }}
 
       - name: Upload package
-        continue-on-error: true
         run: |
-          curl -s -T $(ls packages/*.tar.gz) \
-            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
-            ${{ secrets.LIB_UPLOAD_URL }}
+          for f in packages/*.tar.gz; do
+            curl -s -T $f \
+              -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_PASS }} \
+              ${{ secrets.LIB_UPLOAD_URL }}
+          done
+
   
   upload-release-assets:
     runs-on: ubuntu-latest
@@ -240,3 +244,11 @@ jobs:
           asset_path: packages/${{ needs.build-linux-intel.outputs.package_fname }}
           asset_name: ${{ needs.build-linux-intel.outputs.package_fname }}
           asset_content_type: application/gzip
+
+      - name: Upload package
+        run: |
+          for f in packages/*.tar.gz; do
+            curl -s -T $f \
+              -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_PASS }} \
+              ${{ secrets.LIB_UPLOAD_URL }}
+          done
