@@ -86,8 +86,8 @@ jobs:
         run: |
           for f in packages/*.tar.gz; do
             curl -s -T $f \
-              -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_PASS }} \
-              ${{ secrets.LIB_UPLOAD_URL }}
+              -u ${{ secrets.NEXTCLOUD_USER }}:${{ secrets.NEXTCLOUD_TOKEN }} \
+              ${{ secrets.NEXTCLOUD_CORE_LIBS_URL }}
           done
 
 
@@ -197,8 +197,8 @@ jobs:
         run: |
           for f in packages/*.tar.gz; do
             curl -s -T $f \
-              -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_PASS }} \
-              ${{ secrets.LIB_UPLOAD_URL }}
+              -u ${{ secrets.NEXTCLOUD_USER }}:${{ secrets.NEXTCLOUD_TOKEN }} \
+              ${{ secrets.NEXTCLOUD_CORE_LIBS_URL }}
           done
 
   
