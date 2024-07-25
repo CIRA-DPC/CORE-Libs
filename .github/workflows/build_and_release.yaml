@@ -82,15 +82,6 @@ jobs:
           name: ${{ steps.setvars.outputs.package_fname }}
           path: packages/${{ steps.setvars.outputs.package_fname }}
 
-      - name: Upload package
-        run: |
-          for f in packages/*.tar.gz; do
-            curl -s -T $f \
-              -u ${{ secrets.NEXTCLOUD_USER }}:${{ secrets.NEXTCLOUD_TOKEN }} \
-              ${{ secrets.NEXTCLOUD_CORE_LIBS_URL }}
-          done
-
-
   build-linux-intel:
     runs-on: ubuntu-latest
 
