@@ -10,7 +10,9 @@ PACK_VER=`git describe --tags`
 # docker build . --target export --build-arg PACK_VER=${PACK_VER} -t core-libs-package_centos-8:latest -f Dockerfile.centos-8 -o ./packages
 
 # Debian
-docker build . --target export --build-arg PACK_VER=${PACK_VER} -t core_libs_package_debian-10:latest -f Dockerfile.debian-10 -o ./packages
+docker build . --target export --build-arg PACK_VER=${PACK_VER} \
+    -t core_libs_package_debian-12-gfortran:latest \
+    -f Dockerfile.debian-12-gfortran -o ./packages
 
-# OSX
-make package
+# # OSX
+# make package
