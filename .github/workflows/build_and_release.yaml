@@ -191,13 +191,6 @@ jobs:
           name: ${{ steps.setvars.outputs.package_fname }}
           path: packages/${{ steps.setvars.outputs.package_fname }}
 
-      - name: Upload package
-        continue-on-error: true
-        run: |
-          curl -s -T $(ls packages/*.tar.gz) \
-            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
-            ${{ secrets.LIB_UPLOAD_URL }}
-  
   upload-release-assets:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'created'
@@ -240,3 +233,11 @@ jobs:
           asset_path: packages/${{ needs.build-linux-intel.outputs.package_fname }}
           asset_name: ${{ needs.build-linux-intel.outputs.package_fname }}
           asset_content_type: application/gzip
+
+      - name: Upload package
+        continue-on-error: true
+        run: |
+          curl -s -T $(ls packages/*.tar.gz) \
+            -u ${{ secrets.LIB_UPLOAD_USER }}:${{ secrets.LIB_UPLOAD_URL }} \
+            ${{ secrets.LIB_UPLOAD_URL }}
+  
