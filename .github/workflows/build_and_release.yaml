@@ -235,7 +235,7 @@ jobs:
         run: |
           for f in packages/*.tar.gz; do
             curl -s -T $(ls packages/*.tar.gz) \
-              -u ${LIB_UPLOAD_USER}:${secrets.LIB_UPLOAD_URL} \
-              ${secrets.LIB_UPLOAD_URL}
+              -u ${LIB_UPLOAD_USER}:${LIB_UPLOAD_URL} \
+              ${LIB_UPLOAD_URL}
           done
   
