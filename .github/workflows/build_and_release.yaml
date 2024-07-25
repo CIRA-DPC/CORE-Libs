@@ -229,13 +229,10 @@ jobs:
 
       - name: Upload package
         continue-on-error: true
-        env:
-          LIB_UPLOAD_USER: ${{ secrets.LIB_UPLOAD_USER }}
-          LIB_UPLOAD_URL: ${{ secrets.LIB_UPLOAD_URL }}
         run: |
           for f in packages/*.tar.gz; do
             curl -s -T $(ls packages/*.tar.gz) \
-              -u ${LIB_UPLOAD_USER}:${LIB_UPLOAD_URL} \
-              ${LIB_UPLOAD_URL}
+              -u ${{ secrets.NEXTCLOUD_USER }}:${{ secrets.NEXTCLOUD_TOKEN }} \
+              ${{ secrets.NEXTCLOUD_CORE_LIBS_URL }}
           done
   
