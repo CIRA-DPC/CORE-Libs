@@ -1,15 +1,14 @@
 ARG EXT_REGISTRY="wolf.cira.colostate.edu:444/"
-FROM ${EXT_REGISTRY}docker.io/library/debian:bullseye-slim as build
-
-ARG WORKDIR=/app/core_libs
-ENV WORKDIR=${WORKDIR}
-WORKDIR ${WORKDIR}
+FROM ${EXT_REGISTRY}docker.io/library/debian:bookworm-slim as build
 
 # Install required packages
 RUN apt-get update && \
-    apt-get upgrade && \
+    apt-get -y upgrade && \
     apt-get -y install \
+    gcc \
+    gfortran \
     wget \
+    curl \
     build-essential \
     gfortran \
     m4 \
@@ -19,13 +18,9 @@ RUN apt-get update && \
     libmpc-dev && \
     rm -rf /var/cache/apt/archives
 
-RUN wget https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-12.3.0.tar.gz && \
-    tar xf gcc-12.3.0.tar.gz && \
-    cd gcc-12.3.0 && \
-    ./configure --prefix=/usr/local/gcc12 --enable-languages=c,c++,fortran --disable-bootstrap --disable-multilib && \
-    make && \
-    make install && \
-    rm -rf gcc-12-*
+ARG WORKDIR=/app/core
+ENV WORKDIR=${WORKDIR}
+WORKDIR ${WORKDIR}
 
 # Installation prefix
 ARG PREFIX=${WORKDIR}/build
@@ -33,17 +28,9 @@ ENV PREFIX=${PREFIX}
 ARG TEMPDIR=${WORKDIR}/tmp
 ENV TEMPDIR=${TEMPDIR}
 
-ARG PATH=/usr/local/gcc12/bin:${PREFIX}/bin:${PATH}
-ENV PATH=${PATH}
-
-# COPY . .
-
 ARG CC=gcc
 ARG FC=gfortran
 ARG CXX=g++
-# ENV CC=${CC}
-# ENV FC=${FC}
-# ENV CXX=${GXX}
 
 # Build the base packages
 COPY . .
@@ -60,18 +47,8 @@ RUN make package PACK_VER=${PACK_VER}
 # Export build
 # Scratch is an explicitly empty image
 # Copy in what we want to keep
-# Build with `docker build . --target export -o . -f Dockerfile.debian-10`
+# Build with `docker build . --target export -o . -f Dockerfile.debian-12-gfortran`
 # This will result in a `.tar.gz` file containing the static libraries being written to CWD on the host
 FROM scratch as export
 ARG WORKDIR=/app/core_libs
 COPY --from=build ${WORKDIR}/packages/*.tar.gz /
-
-# Copy only what is needed
-ARG EXT_REGISTRY="bear.cira.colostate.edu:444/"
-FROM ${EXT_REGISTRY}cloudsat-dpc/system/oneapi/ifort-dpcpp-debian-10/docker:2.0.0
-
-ARG WORKDIR=/app/core_libs
-ENV WORKDIR=${WORKDIR}
-WORKDIR ${WORKDIR}
-
-COPY --from=build ${WORKDIR}/build /usr/local
