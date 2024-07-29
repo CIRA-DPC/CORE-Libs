@@ -236,6 +236,8 @@ jobs:
         run: |
           for f in packages/*.tar.gz; do
             fname=$(basename $f)
+            echo "curl -u ${NEXTCLOUD_USER}:${NEXTCLOUD_TOKEN} -T $f \
+                ${NEXTCLOUD_CORE_LIBS_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/DPC/CloudSat/CORE%20Libraries/${fname}"
             curl -u ${NEXTCLOUD_USER}:${NEXTCLOUD_TOKEN} -T $f \
                 ${NEXTCLOUD_CORE_LIBS_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/DPC/CloudSat/CORE%20Libraries/${fname}
           done
