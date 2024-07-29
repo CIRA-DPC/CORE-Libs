@@ -230,15 +230,15 @@ jobs:
       - name: Upload package
         continue-on-error: true
         env:
-          NEXTCLOUD_CORE_LIBS_URL: ${{ secrets.NEXTCLOUD_CORE_LIBS_URL }}
-          NEXTCLOUD_USER: ${{ secrets.NEXTCLOUD_USER }}
+          NEXTCLOUD_URL: ${{ vars.NEXTCLOUD_URL }}
+          NEXTCLOUD_USER: ${{ vars.NEXTCLOUD_USER }}
           NEXTCLOUD_TOKEN: ${{ secrets.NEXTCLOUD_TOKEN }}
         run: |
           for f in packages/*.tar.gz; do
             fname=$(basename $f)
             echo "curl -u ${NEXTCLOUD_USER}:${NEXTCLOUD_TOKEN} -T $f \
-                ${NEXTCLOUD_CORE_LIBS_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/DPC/CloudSat/CORE%20Libraries/${fname}"
+                ${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/DPC/CloudSat/CORE%20Libraries/${fname}"
             curl -u ${NEXTCLOUD_USER}:${NEXTCLOUD_TOKEN} -T $f \
-                ${NEXTCLOUD_CORE_LIBS_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/DPC/CloudSat/CORE%20Libraries/${fname}
+                ${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USER}/DPC/CloudSat/CORE%20Libraries/${fname}
           done
   
