@@ -204,6 +204,7 @@ jobs:
       - name: Install Gnu Compilers
         run: |
           brew update
+          brew install bison
           brew install gcc@12
 
       - name: Debug make
