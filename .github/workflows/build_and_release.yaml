@@ -305,6 +305,16 @@ jobs:
           asset_name: ${{ needs.build-linux-intel.outputs.package_fname }}
           asset_content_type: application/gzip
 
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: packages/${{ needs.build-osx-gnu.outputs.package_fname }}
+          asset_name: ${{ needs.build-osx-gnu.outputs.package_fname }}
+          asset_content_type: application/gzip
+
       - name: Upload package
         continue-on-error: true
         env:
