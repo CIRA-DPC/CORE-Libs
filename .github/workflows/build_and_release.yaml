@@ -215,7 +215,7 @@ jobs:
         if: failure()
         run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
       
-      - name: Debug: List libs and headers
+      - name: Debug List libs and headers
         run: |
           echo -e "\n==============="
           echo "Built libraries"
