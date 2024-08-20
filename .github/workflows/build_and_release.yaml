@@ -197,6 +197,10 @@ jobs:
       package_fname: ${{ steps.setvars.outputs.package_fname }}
     
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Install Gnu Compilers
         run: |
           brew update
