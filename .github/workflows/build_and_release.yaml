@@ -260,7 +260,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'created'
 
-    needs: [build-linux-gnu, build-linux-intel]
+    needs: [build-linux-gnu, build-linux-intel, build-osx-gnu]
 
     steps:
       - uses: actions/checkout@v4
@@ -277,6 +277,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build-linux-intel.outputs.package_fname }}
+          path: packages
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-osx-gnu.outputs.package_fname }}
           path: packages
 
       - name: Upload release asset
