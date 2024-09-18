@@ -124,6 +124,7 @@ all: $(ALL_LIBS)
 base: $(BASE_LIBS)
 
 libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
+	@echo "::group::Building $<""
 	PATH="$(PATH)" \
 	PREFIX="$(prefix)" \
 	COMPILER_SET="$(COMPILER_SET)" \
@@ -139,8 +140,10 @@ libhdfeos.a: hdf-eos2-3.0-src.tar.gz libmfhdf.a | base
 	LIBS="$(LINK_LIBS) $(libdir)/libmfhdf.a" \
 	ONEAPI_PATH="$(ONEAPI_PATH)" \
 	./build_package.sh $<
+	@echo "::endgroup::"
 	
 libmfhdf.a: hdf-4.2.15.tar.gz | base
+	@echo "::group::Building $<""
 	PATH="$(PATH)" \
 	PREFIX="$(prefix)" \
 	COMPILER_SET="$(COMPILER_SET)" \
@@ -157,6 +160,7 @@ libmfhdf.a: hdf-4.2.15.tar.gz | base
 	LIBS="$(LINK_LIBS)" \
 	ONEAPI_PATH="$(ONEAPI_PATH)" \
 	./build_package.sh $<
+	@echo "::endgroup::"
 
 libfl.a: flex-2.6.4.tar.gz liby.a
 
@@ -165,7 +169,7 @@ libjpeg.a: jpegsrc.v9d.tar.gz $(EXTRA_LIBS)
 libsz.a: szip-2.1.1.tar.gz $(EXTRA_LIBS)
 libz.a: zlib-1.2.11.tar.gz $(EXTRA_LIBS)
 libtirpc.a: libtirpc-1.3.1.tar.gz
-	@echo "Building libtirpc"
+	@echo "::group::Building $<""
 	PREFIX="$(prefix)" \
 	COMPILER_SET="$(COMPILER_SET)" \
 	CC="$(CC)" \
@@ -180,9 +184,10 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	LDFLAGS="$(LDFLAGS)" \
 	ONEAPI_PATH="$(ONEAPI_PATH)" \
 	./build_package.sh $<
+	@echo "::endgroup::"
 
 %.a:
-	@echo "Building $<"
+	@echo "::group::Building $<"
 	PREFIX="$(prefix)" \
 	COMPILER_SET="$(COMPILER_SET)" \
 	CC="$(CC)" \
@@ -198,6 +203,7 @@ libtirpc.a: libtirpc-1.3.1.tar.gz
 	ONEAPI_PATH="$(ONEAPI_PATH)" \
 	LEXLIB= \
 	./build_package.sh $<
+	@echo "::endgroup::"
 
 # phony rules
 .PHONY: makedir
