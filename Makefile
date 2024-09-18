@@ -151,7 +151,7 @@ libmfhdf.a: hdf-4.2.15.tar.gz | base
 	CC="$(CC)" \
 	CXX="$(CXX)" \
 	F77="$(FC)" \
-	CONFIGFLAGS="--with-szlib="$(prefix)" --with-jpeg="$(prefix)" --with-zlib="$(prefix)" --disable-netcdf" \
+	CONFIGFLAGS="--with-szlib=$(prefix) --with-jpeg=$(prefix) --with-zlib=$(prefix) --disable-netcdf" \
 	CPPFLAGS="$(CPPFLAGS)" \
 	CFLAGS="$(CFLAGS)" \
 	FFLAGS="$(FFLAGS)" \
