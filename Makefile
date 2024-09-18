@@ -28,7 +28,7 @@ endif
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
     BUILD_LIBTIRPC := false
-    CLI_TOOLS := /Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
+    CLI_TOOLS := $(shell xcrun --show-sdk-path)
     ifeq ($(wildcard $(CLI_TOOLS)),)
         $(error Command Line Tools not found: Install using `xcode-select --install`)
     endif
