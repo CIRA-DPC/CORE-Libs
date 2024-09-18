@@ -12,32 +12,32 @@ packdir := $(basedir)/packages
 
 COMPILER_SET ?= gnu
 ifeq ($(COMPILER_SET),gnu)
-	CC ?= gcc
-	CXX ?= g++
-	FC ?= gfortran
+    CC ?= gcc
+    CXX ?= g++
+    FC ?= gfortran
     FFLAGS += -fallow-argument-mismatch -fallow-invalid-boz
 else ifeq ($(COMPILER_SET),intel)
-	CC ?= icc
-	CXX ?= icpc
-	FC ?= ifort
+    CC ?= icc
+    CXX ?= icpc
+    FC ?= ifort
     COMMON_FLAGS = -diag-disable=10441
 else
-	$(error COMPILER_SET must be one of [gnu, intel]. Received: $(COMPILER_SET))
+    $(error COMPILER_SET must be one of [gnu, intel]. Received: $(COMPILER_SET))
 endif
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
     BUILD_LIBTIRPC := false
-	CLI_TOOLS := /Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
+    CLI_TOOLS := /Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
     ifeq ($(wildcard $(CLI_TOOLS)),)
         $(error Command Line Tools not found: Install using `xcode-select --install`)
-	endif
-	ifeq ($(COMPILER_SET), gnu)
-		COMMON_FLAGS += --sysroot $(CLI_TOOLS)
-	else ifeq ($(COMPILER_SET), intel)
+    endif
+    ifeq ($(COMPILER_SET), gnu)
+        COMMON_FLAGS += --sysroot $(CLI_TOOLS)
+    else ifeq ($(COMPILER_SET), intel)
         COMMON_FLAGS += -isysroot $(CLI_TOOLS)
-	endif
-	BASE_LIBS := libjpeg.a libsz.a libz.a
+    endif
+    BASE_LIBS := libjpeg.a libsz.a libz.a
 else
     BUILD_LIBTIRPC := true
     BASE_LIBS := libjpeg.a libsz.a liby.a libz.a
