@@ -184,11 +184,84 @@ jobs:
           name: ${{ steps.setvars.outputs.package_fname }}
           path: packages/${{ steps.setvars.outputs.package_fname }}
 
+  build-osx-gnu:
+    runs-on: macos-latest
+
+    env:
+      CC: gcc-12
+      FC: gfortran-12
+      CXX: g++-12
+      COMPILER_SET: gnu
+    
+    outputs:
+      package_fname: ${{ steps.setvars.outputs.package_fname }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Gnu Compilers
+        run: |
+          brew update
+          brew install bison
+          brew install gcc@12
+
+      - name: Debug make
+        run: |
+          env | sort
+          echo "=================="
+          make debug
+
+      - name: Build base libraries
+        run: make base
+      
+      - name: Debug config.log
+        if: failure()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
+      
+      - name: Debug List libs and headers
+        run: |
+          echo -e "\n==============="
+          echo "Built libraries"
+          echo "==============="
+          ls -lR build/lib
+          echo -e "\n============="
+          echo "Built headers"
+          echo "============="
+          ls -lR build/include
+
+      - name: Build all libraries
+        run: make all
+
+      - name: Debug config.log
+        if: failure()
+        run: cat /home/runner/work/CORE-Libs/CORE-Libs/tmp/config.log
+
+      - name: Build package
+        id: build
+        run: |
+          make package PACK_VER=$(git describe --tags)
+
+      - name: Set variables
+        id: setvars
+        run: |
+          package_fname=$(./create_package_fname.sh core_libs \
+              $(git describe --tags) gnu)
+          echo "PACKAGE FNAME: $package_fname"
+          echo "package_fname=$package_fname" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setvars.outputs.package_fname }}
+          path: packages/${{ steps.setvars.outputs.package_fname }}
+
   upload-release-assets:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'created'
 
-    needs: [build-linux-gnu, build-linux-intel]
+    needs: [build-linux-gnu, build-linux-intel, build-osx-gnu]
 
     steps:
       - uses: actions/checkout@v4
@@ -205,6 +278,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build-linux-intel.outputs.package_fname }}
+          path: packages
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-osx-gnu.outputs.package_fname }}
           path: packages
 
       - name: Upload release asset
@@ -225,6 +304,16 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: packages/${{ needs.build-linux-intel.outputs.package_fname }}
           asset_name: ${{ needs.build-linux-intel.outputs.package_fname }}
+          asset_content_type: application/gzip
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: packages/${{ needs.build-osx-gnu.outputs.package_fname }}
+          asset_name: ${{ needs.build-osx-gnu.outputs.package_fname }}
           asset_content_type: application/gzip
 
       - name: Upload package

@@ -12,24 +12,23 @@ packdir := $(basedir)/packages
 
 COMPILER_SET ?= gnu
 ifeq ($(COMPILER_SET),gnu)
-    CC = gcc
-    CXX = g++
-    FC = gfortran
+	CC ?= gcc
+	CXX ?= g++
+	FC ?= gfortran
     FFLAGS += -fallow-argument-mismatch -fallow-invalid-boz
 else ifeq ($(COMPILER_SET),intel)
-    CC = icc
-    CXX = icpc
-    FC = ifort
+	CC ?= icc
+	CXX ?= icpc
+	FC ?= ifort
     COMMON_FLAGS = -diag-disable=10441
 else
 	$(error COMPILER_SET must be one of [gnu, intel]. Received: $(COMPILER_SET))
 endif
 
 UNAME_S := $(shell uname -s)
-CLI_TOOLS=/Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
-BUILD_LIBTIRPC := true
 ifeq ($(UNAME_S), Darwin)
     BUILD_LIBTIRPC := false
+	CLI_TOOLS := /Library/Developer/CommandLinetools/SDKs/MacOSX.sdk
     ifeq ($(wildcard $(CLI_TOOLS)),)
         $(error Command Line Tools not found: Install using `xcode-select --install`)
 	endif
@@ -38,6 +37,10 @@ ifeq ($(UNAME_S), Darwin)
 	else ifeq ($(COMPILER_SET), intel)
         COMMON_FLAGS += -isysroot $(CLI_TOOLS)
 	endif
+	BASE_LIBS := libjpeg.a libsz.a libz.a
+else
+    BUILD_LIBTIRPC := true
+    BASE_LIBS := libjpeg.a libsz.a liby.a libz.a
 endif
 
 CFLAGS += $(COMMON_FLAGS)
@@ -56,8 +59,6 @@ else
 endif
 override PATH := $(bindir):$(PATH)
 
-# BASE_LIBS := libfl.a libjpeg.a libsz.a liby.a libz.a
-BASE_LIBS := libjpeg.a libsz.a liby.a libz.a
 ALL_LIBS := $(BASE_LIBS) libmfhdf.a libhdfeos.a
 LINK_LIBS := $(patsubst lib%.a,-l%,$(BASE_LIBS))
 
@@ -161,8 +162,6 @@ libmfhdf.a: hdf-4.2.15.tar.gz | base
 	ONEAPI_PATH="$(ONEAPI_PATH)" \
 	./build_package.sh $<
 	@echo "::endgroup::"
-
-libfl.a: flex-2.6.4.tar.gz liby.a
 
 liby.a: bison-3.8.tar.gz $(EXTRA_LIBS)
 libjpeg.a: jpegsrc.v9d.tar.gz $(EXTRA_LIBS)
